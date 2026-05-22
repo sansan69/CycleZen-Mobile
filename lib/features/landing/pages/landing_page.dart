@@ -135,9 +135,7 @@ class _LandingPageState extends State<LandingPage>
                           color: AppTheme.primaryDark,
                           fontWeight: FontWeight.w800,
                           height: 1.1,
-                          shadows: const [
-                            Shadow(color: Colors.white70, blurRadius: 14),
-                          ],
+                          shadows: AppTheme.textShadowHero,
                         ),
                       ),
                     ),
@@ -150,13 +148,11 @@ class _LandingPageState extends State<LandingPage>
                       'Discover, generate, and share\namazing cycling routes.',
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: AppTheme.primaryDark.withValues(alpha: 0.78),
+                        color: AppTheme.textSecondary,
                         fontSize: 17,
                         fontWeight: FontWeight.w600,
                         height: 1.35,
-                        shadows: const [
-                          Shadow(color: Colors.white, blurRadius: 12),
-                        ],
+                        shadows: AppTheme.textShadowSubtle,
                       ),
                     ),
                   ),
@@ -231,10 +227,10 @@ class _LandingBackdrop extends StatelessWidget {
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [
-            Color(0xFFCFE8F6),
-            Color(0xFFF8FCFC),
-            Color(0xFFE8F5F3),
-            Color(0xFF0F4D4D),
+            AppTheme.skyAccent,
+            AppTheme.cloudWhite,
+            AppTheme.mintCenter,
+            AppTheme.primaryDark,
           ],
           stops: [0, 0.35, 0.54, 1],
         ),
@@ -269,8 +265,8 @@ class _LandingBackdrop extends StatelessWidget {
                   colors: [
                     Colors.transparent,
                     Colors.transparent,
-                    Color(0x220F4D4D),
-                    Color(0xE8063638),
+                    Color(0x210F4D4D),
+                    Color(0xE8082A2B),
                   ],
                   stops: [0, 0.56, 0.76, 1],
                 ),
@@ -306,9 +302,7 @@ class _CycleZenWordmark extends StatelessWidget {
                 fontWeight: FontWeight.w400,
                 height: 0.95,
                 color: AppTheme.primaryDark,
-                shadows: const [
-                  Shadow(color: Colors.white70, blurRadius: 14),
-                ],
+                shadows: AppTheme.textShadowHero,
               ),
             ),
             ShaderMask(
@@ -322,9 +316,7 @@ class _CycleZenWordmark extends StatelessWidget {
                   fontWeight: FontWeight.w600,
                   height: 0.95,
                   color: Colors.white,
-                  shadows: const [
-                    Shadow(color: Colors.white70, blurRadius: 14),
-                  ],
+                  shadows: AppTheme.textShadowHero,
                 ),
               ),
             ),
@@ -349,9 +341,7 @@ class _BrandTagline extends StatelessWidget {
           color: AppTheme.primaryDark,
           fontWeight: FontWeight.w800,
           letterSpacing: 3.2,
-          shadows: const [
-            Shadow(color: Colors.white70, blurRadius: 12),
-          ],
+          shadows: AppTheme.textShadowSubtle,
         ),
       ),
     );

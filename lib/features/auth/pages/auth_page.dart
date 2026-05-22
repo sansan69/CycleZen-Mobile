@@ -51,9 +51,9 @@ class _AuthPageState extends State<AuthPage> with SingleTickerProviderStateMixin
       appBar: AppBar(
         title: const Text('CycleZen'),
         centerTitle: true,
-        backgroundColor: Colors.transparent,
+        backgroundColor: AppTheme.primaryDark,
+        foregroundColor: Colors.white,
         elevation: 0,
-        foregroundColor: theme.colorScheme.onSurface,
       ),
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
@@ -65,7 +65,7 @@ class _AuthPageState extends State<AuthPage> with SingleTickerProviderStateMixin
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 content: Text('Password reset email sent! Check your inbox.'),
-                backgroundColor: Colors.green,
+                backgroundColor: AppTheme.greenAccent,
               ),
             );
           }
@@ -80,7 +80,14 @@ class _AuthPageState extends State<AuthPage> with SingleTickerProviderStateMixin
                 const SizedBox(height: 16),
 
                 // ── Logo ──
-                const Icon(Icons.pedal_bike, size: 64, color: AppTheme.greenAccent),
+                ClipOval(
+                  child: Image.asset(
+                    'assets/images/cyclezen_mark_transparent.png',
+                    width: 64,
+                    height: 64,
+                    fit: BoxFit.cover,
+                  ),
+                ),
                 const SizedBox(height: 8),
                 Text('Welcome to CycleZen',
                     style: theme.textTheme.headlineSmall?.copyWith(
@@ -152,14 +159,17 @@ class _AuthPageState extends State<AuthPage> with SingleTickerProviderStateMixin
 
                 // ── Error details ──
                 if (state is AuthStateError && state.details != null)
-                  Card(
-                    color: Colors.red.shade50,
-                    child: Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Text(state.details!,
-                          style: TextStyle(fontSize: 11, color: Colors.red.shade800),
-                          textAlign: TextAlign.center),
+                  Container(
+                    margin: const EdgeInsets.only(top: 8),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppTheme.primaryDark.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AppTheme.primaryDark.withValues(alpha: 0.15)),
                     ),
+                    child: Text(state.details!,
+                        style: TextStyle(fontSize: 11, color: AppTheme.textSecondary),
+                        textAlign: TextAlign.center),
                   ),
               ],
             ),
@@ -352,7 +362,7 @@ class _AuthPageState extends State<AuthPage> with SingleTickerProviderStateMixin
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: Colors.red,
+        backgroundColor: AppTheme.primaryDark,
         duration: const Duration(seconds: 4),
         action: details != null
             ? SnackBarAction(

@@ -138,7 +138,7 @@ class _SplashRedirectState extends State<_SplashRedirect> {
                 width: 24,
                 height: 24,
                 child: CircularProgressIndicator(
-                    strokeWidth: 2.5, color: Color(0xFFECC382)),
+                    strokeWidth: 2.5, color: AppTheme.goldRing),
               ),
             ],
           ),

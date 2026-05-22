@@ -14,6 +14,7 @@ import 'package:cyclezen/features/home/widgets/manual_route_panel.dart';
 import 'package:cyclezen/features/home/widgets/weather_widget.dart';
 import 'package:cyclezen/features/auth/bloc/auth_bloc.dart';
 import 'package:cyclezen/shared/utils/map_utils.dart';
+import 'package:cyclezen/core/theme/app_theme.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -161,7 +162,7 @@ class _HomePageState extends State<HomePage> {
       if (mounted) {
         setState(() => _loading = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+          SnackBar(content: Text('Error: $e'), backgroundColor: AppTheme.primaryDark),
         );
       }
     }
@@ -185,7 +186,7 @@ class _HomePageState extends State<HomePage> {
       if (mounted) {
         setState(() => _loading = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+          SnackBar(content: Text('Error: $e'), backgroundColor: AppTheme.primaryDark),
         );
       }
     }
@@ -197,11 +198,11 @@ class _HomePageState extends State<HomePage> {
     try {
       await _routeRepo.saveRoute(route);
       if (mounted) ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Route saved!'), backgroundColor: Colors.green),
+        const SnackBar(content: Text('Route saved!'), backgroundColor: AppTheme.greenAccent),
       );
     } catch (e) {
       if (mounted) ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Save failed: $e'), backgroundColor: Colors.red),
+        SnackBar(content: Text('Save failed: $e'), backgroundColor: AppTheme.primaryDark),
       );
     }
   }
@@ -214,11 +215,11 @@ class _HomePageState extends State<HomePage> {
     try {
       final file = await GpxService.exportToFile(route);
       if (mounted) ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('GPX saved: ${file.path}'), backgroundColor: Colors.blue),
+        SnackBar(content: Text('GPX saved: ${file.path}'), backgroundColor: AppTheme.secondaryTeal),
       );
     } catch (e) {
       if (mounted) ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('GPX error: $e'), backgroundColor: Colors.red),
+        SnackBar(content: Text('GPX error: $e'), backgroundColor: AppTheme.primaryDark),
       );
     }
   }
@@ -233,9 +234,9 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: _BrandedAppBar(
         actions: [
-          IconButton(icon: const Icon(Icons.bookmark, color: Colors.white70), onPressed: () => context.pushNamed('saved-routes'), tooltip: 'Saved Routes'),
-          IconButton(icon: const Icon(Icons.dashboard, color: Colors.white70), onPressed: () => context.pushNamed('dashboard'), tooltip: 'Dashboard'),
-          IconButton(icon: const Icon(Icons.person, color: Colors.white70), onPressed: () => context.pushNamed('profile'), tooltip: 'Profile'),
+          IconButton(icon: const Icon(Icons.bookmark, color: Colors.white), onPressed: () => context.pushNamed('saved-routes'), tooltip: 'Saved Routes'),
+          IconButton(icon: const Icon(Icons.dashboard, color: Colors.white), onPressed: () => context.pushNamed('dashboard'), tooltip: 'Dashboard'),
+          IconButton(icon: const Icon(Icons.person, color: Colors.white), onPressed: () => context.pushNamed('profile'), tooltip: 'Profile'),
         ],
       ),
       // Map is pinned at top, rest scrolls below
@@ -365,14 +366,18 @@ class _BrandedAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [Color(0xFF02494D), Color(0xFF013235)],
+          colors: [AppTheme.primaryDark, AppTheme.surfaceDark],
         ),
         boxShadow: [
-          BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2)),
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.35),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
         ],
       ),
       child: SafeArea(
@@ -406,6 +411,9 @@ class _BrandedAppBar extends StatelessWidget implements PreferredSizeWidget {
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
                         height: 1.2,
+                        shadows: [
+                          Shadow(color: Color(0x40000000), blurRadius: 4, offset: Offset(0, 1)),
+                        ],
                       ),
                     ),
                     Text(
@@ -413,10 +421,13 @@ class _BrandedAppBar extends StatelessWidget implements PreferredSizeWidget {
                       style: TextStyle(
                         fontFamily: 'Montserrat',
                         fontSize: 9,
-                        fontWeight: FontWeight.w600,
-                        color: const Color(0xFFECC382).withValues(alpha: 0.7),
+                        fontWeight: FontWeight.w700,
+                        color: AppTheme.goldRing.withValues(alpha: 0.90),
                         letterSpacing: 1.5,
                         height: 1.0,
+                        shadows: const [
+                          Shadow(color: Color(0x40000000), blurRadius: 3, offset: Offset(0, 1)),
+                        ],
                       ),
                     ),
                   ],

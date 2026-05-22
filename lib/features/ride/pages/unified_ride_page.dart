@@ -10,6 +10,7 @@ import 'package:cyclezen/data/services/gpx_service.dart';
 import 'package:cyclezen/data/services/achievement_service.dart';
 import 'package:cyclezen/data/services/ride_share_service.dart';
 import 'package:cyclezen/shared/utils/map_utils.dart';
+import 'package:cyclezen/core/theme/app_theme.dart';
 
 class UnifiedRidePage extends StatefulWidget {
   final CyclingRoute route;
@@ -233,8 +234,8 @@ class _UnifiedRidePageState extends State<UnifiedRidePage> {
       : const Color(0xE602494D);
 
   Color get _panelAccent => _isDark
-      ? const Color(0xFF257A77)
-      : const Color(0xFFECC382);
+      ? AppTheme.secondaryTeal
+      : AppTheme.goldRing;
 
   Color get _speedColor {
     if (_rideState.status == RideStatus.paused) return Colors.orange;
@@ -434,7 +435,7 @@ class _IdlePanel extends StatelessWidget {
           Text('Ready to Ride', style: Theme.of(context).textTheme.titleLarge?.copyWith(
             color: Colors.white, fontWeight: FontWeight.w600)),
           const SizedBox(height: 4),
-          Text('Tap start to begin tracking', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white54)),
+          Text('Tap start to begin tracking', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white70)),
           const SizedBox(height: 20),
           SizedBox(
             width: double.infinity, height: 56,
@@ -474,7 +475,7 @@ class _SpeedDisplay extends StatelessWidget {
           color: speedColor, height: 1.0, letterSpacing: -2)),
         Text(isPaused ? 'PAUSED' : 'km/h', style: TextStyle(
           fontSize: 13, fontWeight: FontWeight.w600,
-          color: isPaused ? Colors.orange : Colors.white54, letterSpacing: 3)),
+          color: isPaused ? Colors.orange : Colors.white70, letterSpacing: 3)),
       ],
     );
   }
@@ -551,9 +552,9 @@ class _Page3NavInfo extends StatelessWidget {
           const Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.navigation, color: Colors.white54, size: 20),
+              Icon(Icons.navigation, color: Colors.white70, size: 20),
               SizedBox(width: 8),
-              Text('REMAINING', style: TextStyle(color: Colors.white54, fontSize: 11, letterSpacing: 2, fontWeight: FontWeight.w600)),
+              Text('REMAINING', style: TextStyle(color: Colors.white70, fontSize: 11, letterSpacing: 2, fontWeight: FontWeight.w600)),
             ],
           ),
           const SizedBox(height: 6),
@@ -563,7 +564,7 @@ class _Page3NavInfo extends StatelessWidget {
           Flexible(
             child: Text(currentInstruction, textAlign: TextAlign.center, maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(color: Colors.white70, fontSize: 14)),
+              style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w500)),
           ),
         ],
       ),
@@ -648,7 +649,7 @@ class _ControlBar extends StatelessWidget {
           SizedBox(
             width: 80,
             child: Text(formatDuration(elapsed), style: const TextStyle(
-              color: Colors.white70, fontSize: 16, fontWeight: FontWeight.w600,
+              color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600,
               fontFeatures: [FontFeature.tabularFigures()]))),
           const Spacer(),
           _CircleButton(size: 64,
