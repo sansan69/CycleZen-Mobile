@@ -4,89 +4,174 @@ import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// First-run brand landing screen based on the supplied CycleZen design.
-class LandingPage extends StatelessWidget {
+class LandingPage extends StatefulWidget {
   const LandingPage({super.key});
 
   static const _keyShown = 'cyclezen_onboarding_shown';
 
+  @override
+  State<LandingPage> createState() => _LandingPageState();
+}
+
+class _LandingPageState extends State<LandingPage>
+    with TickerProviderStateMixin {
+  late final AnimationController _introController;
+  late final AnimationController _ambientController;
+
   Future<bool> _hasCompletedOnboarding() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool(_keyShown) ?? false;
+    return prefs.getBool(LandingPage._keyShown) ?? false;
   }
 
-  Future<void> _startRiding(BuildContext context) async {
+  Future<void> _startRiding() async {
     final done = await _hasCompletedOnboarding();
-    if (!context.mounted) return;
+    if (!mounted) return;
     context.go(done ? '/home' : '/onboarding');
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _introController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1150),
+    )..forward();
+    _ambientController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2800),
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _introController.dispose();
+    _ambientController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
     final isCompact = size.height < 760;
-    final topGap = isCompact ? 18.0 : 36.0;
+    final topGap = isCompact ? 16.0 : 30.0;
     final logoSize =
-        (size.shortestSide * (isCompact ? 0.33 : 0.4)).clamp(118.0, 176.0);
+        (size.shortestSide * (isCompact ? 0.35 : 0.42)).clamp(124.0, 184.0);
 
     return Scaffold(
       body: Stack(
         fit: StackFit.expand,
         children: [
-          const _LandingBackdrop(),
+          _LandingBackdrop(ambientController: _ambientController),
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 28),
               child: Column(
                 children: [
                   SizedBox(height: topGap),
-                  Image.asset(
-                    'assets/images/cyclezen_mark.png',
-                    width: logoSize,
-                    height: logoSize,
-                    fit: BoxFit.contain,
-                    filterQuality: FilterQuality.high,
+                  _Entrance(
+                    controller: _introController,
+                    child: AnimatedBuilder(
+                      animation: _ambientController,
+                      builder: (context, child) {
+                        final lift = -4 + (_ambientController.value * 8);
+                        return Transform.translate(
+                          offset: Offset(0, lift),
+                          child: child,
+                        );
+                      },
+                      child: Image.asset(
+                        'assets/images/cyclezen_mark_transparent.png',
+                        width: logoSize,
+                        height: logoSize,
+                        fit: BoxFit.contain,
+                        filterQuality: FilterQuality.high,
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 4),
-                  const _CycleZenWordmark(),
+                  _Entrance(
+                    controller: _introController,
+                    delay: 0.08,
+                    child: const _CycleZenWordmark(),
+                  ),
                   const SizedBox(height: 10),
-                  const _BrandTagline(),
-                  SizedBox(height: isCompact ? 20 : 34),
-                  Container(
-                    width: 64,
-                    height: 3,
-                    decoration: BoxDecoration(
-                      color: AppTheme.greenAccent,
-                      borderRadius: BorderRadius.circular(999),
+                  _Entrance(
+                    controller: _introController,
+                    delay: 0.16,
+                    child: const _BrandTagline(),
+                  ),
+                  SizedBox(height: isCompact ? 18 : 30),
+                  _Entrance(
+                    controller: _introController,
+                    delay: 0.22,
+                    child: Container(
+                      width: 64,
+                      height: 3,
+                      decoration: BoxDecoration(
+                        color: AppTheme.greenAccent,
+                        borderRadius: BorderRadius.circular(999),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppTheme.greenAccent.withValues(alpha: 0.35),
+                            blurRadius: 12,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                   const SizedBox(height: 22),
-                  FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text(
-                      'Your Cycling Companion',
-                      textAlign: TextAlign.center,
-                      style:
-                          Theme.of(context).textTheme.headlineMedium?.copyWith(
-                                color: AppTheme.primaryDark,
-                                fontWeight: FontWeight.w800,
-                                height: 1.1,
-                              ),
+                  _Entrance(
+                    controller: _introController,
+                    delay: 0.28,
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        'Your Cycling Companion',
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context)
+                            .textTheme
+                            .headlineMedium
+                            ?.copyWith(
+                          color: AppTheme.primaryDark,
+                          fontWeight: FontWeight.w800,
+                          height: 1.1,
+                          shadows: const [
+                            Shadow(color: Colors.white70, blurRadius: 14),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 12),
-                  Text(
-                    'Discover, generate, and share\namazing cycling routes.',
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: const Color(0xFF3D4B52),
-                          fontSize: 17,
-                          height: 1.35,
-                        ),
+                  _Entrance(
+                    controller: _introController,
+                    delay: 0.34,
+                    child: Text(
+                      'Discover, generate, and share\namazing cycling routes.',
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        color: AppTheme.primaryDark.withValues(alpha: 0.78),
+                        fontSize: 17,
+                        fontWeight: FontWeight.w600,
+                        height: 1.35,
+                        shadows: const [
+                          Shadow(color: Colors.white, blurRadius: 12),
+                        ],
+                      ),
+                    ),
                   ),
                   const Spacer(),
-                  _StartRidingButton(onPressed: () => _startRiding(context)),
-                  const SizedBox(height: 26),
-                  const _PageDots(),
+                  _Entrance(
+                    controller: _introController,
+                    delay: 0.46,
+                    child: _SwipeStartControl(onComplete: _startRiding),
+                  ),
+                  const SizedBox(height: 24),
+                  _Entrance(
+                    controller: _introController,
+                    delay: 0.54,
+                    child: const _PageDots(),
+                  ),
                   const SizedBox(height: 18),
                 ],
               ),
@@ -98,8 +183,45 @@ class LandingPage extends StatelessWidget {
   }
 }
 
+class _Entrance extends StatelessWidget {
+  const _Entrance({
+    required this.controller,
+    required this.child,
+    this.delay = 0,
+  });
+
+  final AnimationController controller;
+  final Widget child;
+  final double delay;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: controller,
+      builder: (context, child) {
+        final progress =
+            ((controller.value - delay) / (1 - delay)).clamp(0.0, 1.0);
+        final eased = Curves.easeOutCubic.transform(progress);
+        return Opacity(
+          opacity: eased,
+          child: Transform.translate(
+            offset: Offset(0, 26 * (1 - eased)),
+            child: Transform.scale(
+              scale: 0.97 + (0.03 * eased),
+              child: child,
+            ),
+          ),
+        );
+      },
+      child: child,
+    );
+  }
+}
+
 class _LandingBackdrop extends StatelessWidget {
-  const _LandingBackdrop();
+  const _LandingBackdrop({required this.ambientController});
+
+  final AnimationController ambientController;
 
   @override
   Widget build(BuildContext context) {
@@ -120,7 +242,12 @@ class _LandingBackdrop extends StatelessWidget {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          CustomPaint(painter: _SkyPainter()),
+          AnimatedBuilder(
+            animation: ambientController,
+            builder: (context, _) => CustomPaint(
+              painter: _SkyPainter(progress: ambientController.value),
+            ),
+          ),
           Positioned(
             left: 0,
             right: 0,
@@ -142,10 +269,10 @@ class _LandingBackdrop extends StatelessWidget {
                   colors: [
                     Colors.transparent,
                     Colors.transparent,
-                    Color(0x440F4D4D),
-                    Color(0xEE063638),
+                    Color(0x220F4D4D),
+                    Color(0xE8063638),
                   ],
-                  stops: [0, 0.58, 0.78, 1],
+                  stops: [0, 0.56, 0.76, 1],
                 ),
               ),
             ),
@@ -179,6 +306,9 @@ class _CycleZenWordmark extends StatelessWidget {
                 fontWeight: FontWeight.w400,
                 height: 0.95,
                 color: AppTheme.primaryDark,
+                shadows: const [
+                  Shadow(color: Colors.white70, blurRadius: 14),
+                ],
               ),
             ),
             ShaderMask(
@@ -192,6 +322,9 @@ class _CycleZenWordmark extends StatelessWidget {
                   fontWeight: FontWeight.w600,
                   height: 0.95,
                   color: Colors.white,
+                  shadows: const [
+                    Shadow(color: Colors.white70, blurRadius: 14),
+                  ],
                 ),
               ),
             ),
@@ -213,80 +346,235 @@ class _BrandTagline extends StatelessWidget {
         'DISCOVER. PLAN. RIDE. SHARE.',
         textAlign: TextAlign.center,
         style: Theme.of(context).textTheme.labelMedium?.copyWith(
-              color: AppTheme.primaryDark,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 3.2,
-            ),
+          color: AppTheme.primaryDark,
+          fontWeight: FontWeight.w800,
+          letterSpacing: 3.2,
+          shadows: const [
+            Shadow(color: Colors.white70, blurRadius: 12),
+          ],
+        ),
       ),
     );
   }
 }
 
-class _StartRidingButton extends StatelessWidget {
-  const _StartRidingButton({required this.onPressed});
+class _SwipeStartControl extends StatefulWidget {
+  const _SwipeStartControl({required this.onComplete});
 
-  final VoidCallback onPressed;
+  final Future<void> Function() onComplete;
+
+  @override
+  State<_SwipeStartControl> createState() => _SwipeStartControlState();
+}
+
+class _SwipeStartControlState extends State<_SwipeStartControl>
+    with TickerProviderStateMixin {
+  static const _height = 76.0;
+  static const _handleSize = 58.0;
+
+  late final AnimationController _loopController;
+  late final AnimationController _settleController;
+  Animation<double>? _settleAnimation;
+  double _progress = 0;
+  bool _completed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loopController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1700),
+    )..repeat();
+    _settleController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 260),
+    )..addListener(() {
+        final animation = _settleAnimation;
+        if (animation != null) {
+          setState(() => _progress = animation.value);
+        }
+      });
+  }
+
+  @override
+  void dispose() {
+    _loopController.dispose();
+    _settleController.dispose();
+    super.dispose();
+  }
+
+  void _updateDrag(double dx, double travel) {
+    if (_completed) return;
+    _settleController.stop();
+    setState(() => _progress = (_progress + dx / travel).clamp(0.0, 1.0));
+  }
+
+  void _settleTo(double target, {VoidCallback? onDone}) {
+    _settleAnimation = Tween<double>(begin: _progress, end: target).animate(
+      CurvedAnimation(parent: _settleController, curve: Curves.easeOutCubic),
+    );
+    _settleController
+      ..reset()
+      ..forward().whenComplete(() {
+        if (mounted) onDone?.call();
+      });
+  }
+
+  void _endDrag() {
+    if (_completed) return;
+    if (_progress >= 0.72) {
+      _completed = true;
+      _settleTo(1, onDone: widget.onComplete);
+    } else {
+      _settleTo(0);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 620),
-      child: Material(
-        color: Colors.transparent,
-        borderRadius: BorderRadius.circular(999),
-        child: InkWell(
-          onTap: onPressed,
-          borderRadius: BorderRadius.circular(999),
-          child: Container(
-            width: double.infinity,
-            height: 76,
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-                colors: [AppTheme.secondaryTeal, AppTheme.greenAccent],
-              ),
-              borderRadius: BorderRadius.circular(999),
-              border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.35), width: 1.2),
-              boxShadow: [
-                BoxShadow(
-                  color: AppTheme.primaryDark.withValues(alpha: 0.35),
-                  blurRadius: 24,
-                  offset: const Offset(0, 14),
-                ),
-              ],
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: 58,
-                  height: 58,
-                  decoration: const BoxDecoration(
-                      color: Colors.white, shape: BoxShape.circle),
-                  child: const Icon(Icons.pedal_bike_rounded,
-                      color: AppTheme.secondaryTeal, size: 31),
-                ),
-                const Expanded(
-                  child: Text(
-                    'Start Riding',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontFamily: 'Poppins',
-                      fontSize: 25,
-                      fontWeight: FontWeight.w800,
-                      color: Colors.white,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final width = constraints.maxWidth;
+          final travel = (width - _handleSize - 22).clamp(1.0, double.infinity);
+          final handleX = 10 + travel * _progress;
+
+          return Semantics(
+            button: true,
+            label: 'Swipe right to start riding',
+            child: GestureDetector(
+              onHorizontalDragUpdate: (details) =>
+                  _updateDrag(details.delta.dx, travel),
+              onHorizontalDragEnd: (_) => _endDrag(),
+              child: AnimatedBuilder(
+                animation: _loopController,
+                builder: (context, _) {
+                  final wave = _loopController.value;
+                  return Container(
+                    width: double.infinity,
+                    height: _height,
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                        colors: [AppTheme.secondaryTeal, AppTheme.greenAccent],
+                      ),
+                      borderRadius: BorderRadius.circular(999),
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.42),
+                        width: 1.2,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppTheme.primaryDark.withValues(alpha: 0.36),
+                          blurRadius: 26,
+                          offset: const Offset(0, 14),
+                        ),
+                      ],
                     ),
-                  ),
-                ),
-                const Icon(Icons.chevron_right_rounded,
-                    size: 44, color: Colors.white),
-              ],
+                    clipBehavior: Clip.antiAlias,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Positioned(
+                          left: -width + (width * 2 * wave),
+                          width: width * 0.72,
+                          top: 0,
+                          bottom: 0,
+                          child: Transform(
+                            transform: Matrix4.skewX(-0.22),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    Colors.white.withValues(alpha: 0),
+                                    Colors.white.withValues(alpha: 0.16),
+                                    Colors.white.withValues(alpha: 0),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          left: 0,
+                          top: 0,
+                          bottom: 0,
+                          width: 24 + (width - 24) * _progress,
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.10),
+                              borderRadius: BorderRadius.circular(999),
+                            ),
+                          ),
+                        ),
+                        Opacity(
+                          opacity: (1 - (_progress * 0.45)).clamp(0.55, 1),
+                          child: Text(
+                            _completed ? 'Starting...' : 'Swipe to Start',
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              fontFamily: 'Poppins',
+                              fontSize: 23,
+                              fontWeight: FontWeight.w800,
+                              color: Colors.white,
+                              shadows: [
+                                Shadow(color: Color(0x33000000), blurRadius: 8),
+                              ],
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          right: 20,
+                          child: Transform.translate(
+                            offset: Offset(6 * wave, 0),
+                            child: Icon(
+                              Icons.keyboard_double_arrow_right_rounded,
+                              size: 32,
+                              color: Colors.white
+                                  .withValues(alpha: 0.72 + 0.28 * wave),
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          left: handleX,
+                          child: AnimatedScale(
+                            scale: _progress > 0.02 ? 1.04 : 1,
+                            duration: const Duration(milliseconds: 160),
+                            child: Container(
+                              width: _handleSize,
+                              height: _handleSize,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: AppTheme.primaryDark
+                                        .withValues(alpha: 0.26),
+                                    blurRadius: 16,
+                                    offset: const Offset(0, 7),
+                                  ),
+                                ],
+                              ),
+                              child: Icon(
+                                _completed
+                                    ? Icons.check_rounded
+                                    : Icons.pedal_bike_rounded,
+                                color: AppTheme.secondaryTeal,
+                                size: 31,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }
@@ -302,14 +590,22 @@ class _PageDots extends StatelessWidget {
       children: List.generate(3, (index) {
         final selected = index == 1;
         return Container(
-          width: 14,
-          height: 14,
+          width: selected ? 15 : 13,
+          height: selected ? 15 : 13,
           margin: const EdgeInsets.symmetric(horizontal: 7),
           decoration: BoxDecoration(
             color: selected
                 ? AppTheme.greenAccent
-                : Colors.white.withValues(alpha: 0.45),
+                : Colors.white.withValues(alpha: 0.5),
             shape: BoxShape.circle,
+            boxShadow: selected
+                ? [
+                    BoxShadow(
+                      color: AppTheme.greenAccent.withValues(alpha: 0.35),
+                      blurRadius: 10,
+                    ),
+                  ]
+                : null,
           ),
         );
       }),
@@ -318,12 +614,20 @@ class _PageDots extends StatelessWidget {
 }
 
 class _SkyPainter extends CustomPainter {
+  const _SkyPainter({required this.progress});
+
+  final double progress;
+
   @override
   void paint(Canvas canvas, Size size) {
-    final cloudPaint = Paint()..color = Colors.white.withValues(alpha: 0.8);
+    final cloudPaint = Paint()..color = Colors.white.withValues(alpha: 0.82);
     _cloud(canvas, Offset(-28, size.height * 0.32), 1.0, cloudPaint);
     _cloud(
-        canvas, Offset(size.width - 110, size.height * 0.33), 1.1, cloudPaint);
+      canvas,
+      Offset(size.width - 110, size.height * 0.33),
+      1.1,
+      cloudPaint,
+    );
     _cloud(canvas, Offset(-12, size.height * 0.42), 0.58, cloudPaint);
 
     final birdPaint = Paint()
@@ -331,29 +635,40 @@ class _SkyPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2.8
       ..strokeCap = StrokeCap.round;
+    final drift = (progress - 0.5) * 18;
     _bird(
-        canvas, Offset(size.width * 0.75, size.height * 0.23), 1.0, birdPaint);
+      canvas,
+      Offset(size.width * 0.75 + drift, size.height * 0.23),
+      1.0,
+      birdPaint,
+    );
     _bird(
-        canvas, Offset(size.width * 0.82, size.height * 0.26), 0.82, birdPaint);
+      canvas,
+      Offset(size.width * 0.82 + drift, size.height * 0.26),
+      0.82,
+      birdPaint,
+    );
   }
 
   void _cloud(Canvas canvas, Offset origin, double scale, Paint paint) {
     final path = Path()
       ..moveTo(origin.dx, origin.dy + 52 * scale)
       ..cubicTo(
-          origin.dx + 30 * scale,
-          origin.dy + 24 * scale,
-          origin.dx + 58 * scale,
-          origin.dy + 72 * scale,
-          origin.dx + 82 * scale,
-          origin.dy + 34 * scale)
+        origin.dx + 30 * scale,
+        origin.dy + 24 * scale,
+        origin.dx + 58 * scale,
+        origin.dy + 72 * scale,
+        origin.dx + 82 * scale,
+        origin.dy + 34 * scale,
+      )
       ..cubicTo(
-          origin.dx + 118 * scale,
-          origin.dy - 18 * scale,
-          origin.dx + 178 * scale,
-          origin.dy + 18 * scale,
-          origin.dx + 182 * scale,
-          origin.dy + 72 * scale)
+        origin.dx + 118 * scale,
+        origin.dy - 18 * scale,
+        origin.dx + 178 * scale,
+        origin.dy + 18 * scale,
+        origin.dx + 182 * scale,
+        origin.dy + 72 * scale,
+      )
       ..lineTo(origin.dx, origin.dy + 72 * scale)
       ..close();
     canvas.drawPath(path, paint);
@@ -363,12 +678,22 @@ class _SkyPainter extends CustomPainter {
     final path = Path()
       ..moveTo(origin.dx - 19 * scale, origin.dy)
       ..quadraticBezierTo(
-          origin.dx - 9 * scale, origin.dy - 8 * scale, origin.dx, origin.dy)
-      ..quadraticBezierTo(origin.dx + 10 * scale, origin.dy - 8 * scale,
-          origin.dx + 20 * scale, origin.dy);
+        origin.dx - 9 * scale,
+        origin.dy - 8 * scale,
+        origin.dx,
+        origin.dy,
+      )
+      ..quadraticBezierTo(
+        origin.dx + 10 * scale,
+        origin.dy - 8 * scale,
+        origin.dx + 20 * scale,
+        origin.dy,
+      );
     canvas.drawPath(path, paint);
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant _SkyPainter oldDelegate) {
+    return progress != oldDelegate.progress;
+  }
 }

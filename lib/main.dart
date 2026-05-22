@@ -112,7 +112,7 @@ class _CycleZenSplashMark extends StatelessWidget {
         children: [
           ClipOval(
             child: Image.asset(
-              'assets/images/cyclezen_mark.png',
+              'assets/images/cyclezen_mark_transparent.png',
               width: 96,
               height: 96,
               fit: BoxFit.cover,

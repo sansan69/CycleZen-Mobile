@@ -119,7 +119,8 @@ class _SplashRedirectState extends State<_SplashRedirect> {
                   child: Padding(
                     padding: EdgeInsets.all(4),
                     child: Image(
-                      image: AssetImage('assets/images/cyclezen_mark.png'),
+                      image: AssetImage(
+                          'assets/images/cyclezen_mark_transparent.png'),
                       fit: BoxFit.cover,
                     ),
                   ),

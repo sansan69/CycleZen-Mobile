@@ -386,7 +386,7 @@ class _BrandedAppBar extends StatelessWidget implements PreferredSizeWidget {
                 padding: const EdgeInsets.only(left: 12, right: 8),
                 child: ClipOval(
                   child: Image.asset(
-                    'assets/images/cyclezen_mark.png',
+                    'assets/images/cyclezen_mark_transparent.png',
                     width: 32,
                     height: 32,
                     fit: BoxFit.cover,
