@@ -10,7 +10,7 @@ import 'package:cyclezen/features/auth/bloc/auth_bloc.dart';
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Show splash immediately — don't wait for Firebase init
+  // Show splash immediately — don't wait for Firebase init.
   runApp(const _CycleZenSplash());
 
   _initApp().then((_) {
@@ -29,7 +29,7 @@ Future<void> _initApp() async {
   await configureDependencies();
 }
 
-/// Minimal splash screen shown immediately while Firebase initializes.
+/// Branded splash screen shown immediately while Firebase initializes.
 class _CycleZenSplash extends StatelessWidget {
   const _CycleZenSplash();
 
@@ -38,44 +38,87 @@ class _CycleZenSplash extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-        backgroundColor: AppTheme.primaryDark,
-        body: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: const [
-              // Gold ring accent
-              Icon(Icons.pedal_bike, size: 80, color: AppTheme.goldRing),
-              SizedBox(height: 16),
-              Text(
-                'CycleZen',
-                style: TextStyle(
-                  fontFamily: 'Poppins',
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+        body: Container(
+          decoration: BoxDecoration(gradient: AppTheme.brandGradient),
+          child: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: const [
+                _CycleZenSplashMark(),
+                SizedBox(height: 20),
+                Text(
+                  'CycleZen',
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: 34,
+                    fontWeight: FontWeight.w800,
+                    color: Colors.white,
+                    letterSpacing: -0.4,
+                  ),
                 ),
-              ),
-              SizedBox(height: 8),
-              Text(
-                'Find your ride',
-                style: TextStyle(
-                  fontFamily: 'Montserrat',
-                  fontSize: 14,
-                  color: AppTheme.mintCenter,
+                SizedBox(height: 8),
+                Text(
+                  'DISCOVER · PLAN · RIDE · SHARE',
+                  style: TextStyle(
+                    fontFamily: 'Montserrat',
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 2,
+                    color: AppTheme.goldRing,
+                  ),
                 ),
-              ),
-              SizedBox(height: 32),
-              SizedBox(
-                width: 24,
-                height: 24,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2.5,
-                  color: AppTheme.goldRing,
+                SizedBox(height: 34),
+                SizedBox(
+                  width: 26,
+                  height: 26,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2.8,
+                    color: AppTheme.goldRing,
+                    backgroundColor: Colors.white24,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _CycleZenSplashMark extends StatelessWidget {
+  const _CycleZenSplashMark();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 104,
+      height: 104,
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.12),
+        shape: BoxShape.circle,
+        border: Border.all(color: Colors.white.withValues(alpha: 0.35), width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.18),
+            blurRadius: 32,
+            offset: const Offset(0, 16),
+          ),
+        ],
+      ),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Container(
+            width: 72,
+            height: 72,
+            decoration: const BoxDecoration(
+              shape: BoxShape.circle,
+              color: AppTheme.goldRing,
+            ),
+          ),
+          const Icon(Icons.pedal_bike_rounded, size: 58, color: AppTheme.primaryDark),
+        ],
       ),
     );
   }
