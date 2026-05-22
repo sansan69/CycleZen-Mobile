@@ -40,10 +40,10 @@ class _CycleZenSplash extends StatelessWidget {
       home: Scaffold(
         body: Container(
           decoration: BoxDecoration(gradient: AppTheme.brandGradient),
-          child: Center(
+          child: const Center(
             child: Column(
               mainAxisSize: MainAxisSize.min,
-              children: const [
+              children: [
                 _CycleZenSplashMark(),
                 SizedBox(height: 20),
                 Text(
@@ -53,7 +53,7 @@ class _CycleZenSplash extends StatelessWidget {
                     fontSize: 34,
                     fontWeight: FontWeight.w800,
                     color: Colors.white,
-                    letterSpacing: -0.4,
+                    letterSpacing: 0,
                   ),
                 ),
                 SizedBox(height: 8),
@@ -95,9 +95,10 @@ class _CycleZenSplashMark extends StatelessWidget {
       width: 104,
       height: 104,
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.12),
+        color: Colors.white,
         shape: BoxShape.circle,
-        border: Border.all(color: Colors.white.withValues(alpha: 0.35), width: 1.5),
+        border:
+            Border.all(color: Colors.white.withValues(alpha: 0.35), width: 1.5),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.18),
@@ -109,15 +110,15 @@ class _CycleZenSplashMark extends StatelessWidget {
       child: Stack(
         alignment: Alignment.center,
         children: [
-          Container(
-            width: 72,
-            height: 72,
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              color: AppTheme.goldRing,
+          ClipOval(
+            child: Image.asset(
+              'assets/images/cyclezen_mark.png',
+              width: 96,
+              height: 96,
+              fit: BoxFit.cover,
+              filterQuality: FilterQuality.high,
             ),
           ),
-          const Icon(Icons.pedal_bike_rounded, size: 58, color: AppTheme.primaryDark),
         ],
       ),
     );

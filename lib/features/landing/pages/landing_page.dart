@@ -1,11 +1,9 @@
-import 'dart:math' as math;
-
+import 'package:cyclezen/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// Exact-match landing page with centered teal card, route illustration,
-/// gold tagline, heading, subtitle, and "Start Riding →" CTA.
+/// First-run brand landing screen based on the supplied CycleZen design.
 class LandingPage extends StatelessWidget {
   const LandingPage({super.key});
 
@@ -16,171 +14,277 @@ class LandingPage extends StatelessWidget {
     return prefs.getBool(_keyShown) ?? false;
   }
 
+  Future<void> _startRiding(BuildContext context) async {
+    final done = await _hasCompletedOnboarding();
+    if (!context.mounted) return;
+    context.go(done ? '/home' : '/onboarding');
+  }
+
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
+    final size = MediaQuery.sizeOf(context);
+    final isCompact = size.height < 760;
+    final topGap = isCompact ? 18.0 : 36.0;
+    final logoSize =
+        (size.shortestSide * (isCompact ? 0.33 : 0.4)).clamp(118.0, 176.0);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFE8F4F8),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              const SizedBox(height: 40),
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          const _LandingBackdrop(),
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 28),
+              child: Column(
+                children: [
+                  SizedBox(height: topGap),
+                  Image.asset(
+                    'assets/images/cyclezen_mark.png',
+                    width: logoSize,
+                    height: logoSize,
+                    fit: BoxFit.contain,
+                    filterQuality: FilterQuality.high,
+                  ),
+                  const SizedBox(height: 4),
+                  const _CycleZenWordmark(),
+                  const SizedBox(height: 10),
+                  const _BrandTagline(),
+                  SizedBox(height: isCompact ? 20 : 34),
+                  Container(
+                    width: 64,
+                    height: 3,
+                    decoration: BoxDecoration(
+                      color: AppTheme.greenAccent,
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                  ),
+                  const SizedBox(height: 22),
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      'Your Cycling Companion',
+                      textAlign: TextAlign.center,
+                      style:
+                          Theme.of(context).textTheme.headlineMedium?.copyWith(
+                                color: AppTheme.primaryDark,
+                                fontWeight: FontWeight.w800,
+                                height: 1.1,
+                              ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Discover, generate, and share\namazing cycling routes.',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          color: const Color(0xFF3D4B52),
+                          fontSize: 17,
+                          height: 1.35,
+                        ),
+                  ),
+                  const Spacer(),
+                  _StartRidingButton(onPressed: () => _startRiding(context)),
+                  const SizedBox(height: 26),
+                  const _PageDots(),
+                  const SizedBox(height: 18),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
 
-              // ── Tagline ──
-              Text(
-                'DISCOVER. PLAN. RIDE. SHARE.',
-                style: TextStyle(
-                  fontFamily: 'Montserrat',
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  color: const Color(0xFFECC382).withValues(alpha: 0.85),
-                  letterSpacing: 3,
+class _LandingBackdrop extends StatelessWidget {
+  const _LandingBackdrop();
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Color(0xFFCFE8F6),
+            Color(0xFFF8FCFC),
+            Color(0xFFE8F5F3),
+            Color(0xFF0F4D4D),
+          ],
+          stops: [0, 0.35, 0.54, 1],
+        ),
+      ),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          CustomPaint(painter: _SkyPainter()),
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 104,
+            height: MediaQuery.sizeOf(context).height * 0.42,
+            child: Image.asset(
+              'assets/images/landing_scenic_valley.png',
+              fit: BoxFit.cover,
+              alignment: Alignment.bottomCenter,
+              filterQuality: FilterQuality.high,
+            ),
+          ),
+          const Positioned.fill(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.transparent,
+                    Colors.transparent,
+                    Color(0x440F4D4D),
+                    Color(0xEE063638),
+                  ],
+                  stops: [0, 0.58, 0.78, 1],
                 ),
               ),
-              const SizedBox(height: 20),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
 
-              // ── Centered card ──
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 28),
-                child: Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF02494D),
-                    borderRadius: BorderRadius.circular(24),
-                  ),
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 24),
-                      // Route preview illustration
-                      SizedBox(
-                        height: 130,
-                        child: CustomPaint(
-                          size: Size(screenWidth - 56, 130),
-                          painter: _CardRoutePainter(),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      // CycleZen brand inside card
-                      const Text(
-                        'CycleZen',
-                        style: TextStyle(
-                          fontFamily: 'Poppins',
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                    ],
-                  ),
-                ),
+class _CycleZenWordmark extends StatelessWidget {
+  const _CycleZenWordmark();
+
+  @override
+  Widget build(BuildContext context) {
+    final fontSize = MediaQuery.sizeOf(context).width < 380 ? 52.0 : 62.0;
+
+    return SizedBox(
+      width: double.infinity,
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Text(
+              'Cycle',
+              style: TextStyle(
+                fontFamily: 'Poppins',
+                fontSize: fontSize,
+                fontWeight: FontWeight.w400,
+                height: 0.95,
+                color: AppTheme.primaryDark,
               ),
-              const SizedBox(height: 28),
-
-              // ── Heading ──
-              const Text(
-                'Your Cycling\nCompanion',
-                textAlign: TextAlign.center,
+            ),
+            ShaderMask(
+              shaderCallback: (bounds) =>
+                  AppTheme.brandGradient.createShader(bounds),
+              child: Text(
+                'Zen',
                 style: TextStyle(
                   fontFamily: 'Poppins',
-                  fontSize: 30,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF0F172A),
-                  height: 1.15,
+                  fontSize: fontSize,
+                  fontWeight: FontWeight.w600,
+                  height: 0.95,
+                  color: Colors.white,
                 ),
               ),
-              const SizedBox(height: 14),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
-              // ── Subtitle ──
-              Text(
-                'Discover, generate, and share\namazing cycling routes.',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontFamily: 'Montserrat',
-                  fontSize: 14.5,
-                  color: const Color(0xFF0F172A).withValues(alpha: 0.5),
-                  height: 1.5,
-                ),
+class _BrandTagline extends StatelessWidget {
+  const _BrandTagline();
+
+  @override
+  Widget build(BuildContext context) {
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      child: Text(
+        'DISCOVER. PLAN. RIDE. SHARE.',
+        textAlign: TextAlign.center,
+        style: Theme.of(context).textTheme.labelMedium?.copyWith(
+              color: AppTheme.primaryDark,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 3.2,
+            ),
+      ),
+    );
+  }
+}
+
+class _StartRidingButton extends StatelessWidget {
+  const _StartRidingButton({required this.onPressed});
+
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 620),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(999),
+        child: InkWell(
+          onTap: onPressed,
+          borderRadius: BorderRadius.circular(999),
+          child: Container(
+            width: double.infinity,
+            height: 76,
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+                colors: [AppTheme.secondaryTeal, AppTheme.greenAccent],
               ),
-              const SizedBox(height: 40),
-
-              // ── Start Riding button ──
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 44),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      final done = await _hasCompletedOnboarding();
-                      if (!context.mounted) return;
-                      if (done) {
-                        context.go('/home');
-                      } else {
-                        context.go('/onboarding');
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF02494D),
-                      foregroundColor: const Color(0xFFECC382),
-                      padding: const EdgeInsets.symmetric(vertical: 15),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      elevation: 0,
+              borderRadius: BorderRadius.circular(999),
+              border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.35), width: 1.2),
+              boxShadow: [
+                BoxShadow(
+                  color: AppTheme.primaryDark.withValues(alpha: 0.35),
+                  blurRadius: 24,
+                  offset: const Offset(0, 14),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 58,
+                  height: 58,
+                  decoration: const BoxDecoration(
+                      color: Colors.white, shape: BoxShape.circle),
+                  child: const Icon(Icons.pedal_bike_rounded,
+                      color: AppTheme.secondaryTeal, size: 31),
+                ),
+                const Expanded(
+                  child: Text(
+                    'Start Riding',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontSize: 25,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.white,
                     ),
-                    child: const Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          'Start Riding',
-                          style: TextStyle(
-                            fontFamily: 'Poppins',
-                            fontSize: 17,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        SizedBox(width: 6),
-                        Text('→', style: TextStyle(fontSize: 20)),
-                      ],
-                    ),
                   ),
                 ),
-              ),
-
-              const SizedBox(height: 40),
-
-              // ── Bottom teal bar ──
-              Container(
-                width: double.infinity,
-                height: 80,
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [Color(0xFF02494D), Color(0xFF001214)],
-                  ),
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(24),
-                    topRight: Radius.circular(24),
-                  ),
-                ),
-                child: Center(
-                  child: TextButton(
-                    onPressed: () => context.pushNamed('auth'),
-                    child: Text(
-                      'I already have an account',
-                      style: TextStyle(
-                        fontFamily: 'Montserrat',
-                        fontSize: 13,
-                        color: Colors.white.withValues(alpha: 0.5),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
+                const Icon(Icons.chevron_right_rounded,
+                    size: 44, color: Colors.white),
+              ],
+            ),
           ),
         ),
       ),
@@ -188,116 +292,80 @@ class LandingPage extends StatelessWidget {
   }
 }
 
-// ── Card route illustration painter ────────────────────
+class _PageDots extends StatelessWidget {
+  const _PageDots();
 
-class _CardRoutePainter extends CustomPainter {
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(3, (index) {
+        final selected = index == 1;
+        return Container(
+          width: 14,
+          height: 14,
+          margin: const EdgeInsets.symmetric(horizontal: 7),
+          decoration: BoxDecoration(
+            color: selected
+                ? AppTheme.greenAccent
+                : Colors.white.withValues(alpha: 0.45),
+            shape: BoxShape.circle,
+          ),
+        );
+      }),
+    );
+  }
+}
+
+class _SkyPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    // Background road network — subtle lighter lines
-    final bgPaint = Paint()
-      ..color = const Color(0xFF359780).withValues(alpha: 0.2)
-      ..strokeWidth = 1.5
+    final cloudPaint = Paint()..color = Colors.white.withValues(alpha: 0.8);
+    _cloud(canvas, Offset(-28, size.height * 0.32), 1.0, cloudPaint);
+    _cloud(
+        canvas, Offset(size.width - 110, size.height * 0.33), 1.1, cloudPaint);
+    _cloud(canvas, Offset(-12, size.height * 0.42), 0.58, cloudPaint);
+
+    final birdPaint = Paint()
+      ..color = AppTheme.primaryDark.withValues(alpha: 0.72)
       ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.8
       ..strokeCap = StrokeCap.round;
-
-    _drawRoad(canvas, size, bgPaint,
-        Offset(size.width * 0.1, size.height * 0.8),
-        Offset(size.width * 0.55, size.height * 0.15), 0.3);
-    _drawRoad(canvas, size, bgPaint,
-        Offset(size.width * 0.4, size.height * 0.9),
-        Offset(size.width * 0.85, size.height * 0.55), -0.2);
-
-    // Main highlighted route — bright green
-    final routePaint = Paint()
-      ..color = const Color(0xFF359780)
-      ..strokeWidth = 3.5
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round;
-
-    final path = Path();
-    path.moveTo(size.width * 0.08, size.height * 0.65);
-    path.cubicTo(
-      size.width * 0.25, size.height * 0.15,
-      size.width * 0.55, size.height * 0.7,
-      size.width * 0.72, size.height * 0.35,
-    );
-    path.cubicTo(
-      size.width * 0.82, size.height * 0.15,
-      size.width * 0.92, size.height * 0.45,
-      size.width * 0.95, size.height * 0.3,
-    );
-    canvas.drawPath(path, routePaint);
-
-    // Gold accent route
-    final goldPaint = Paint()
-      ..color = const Color(0xFFECC382).withValues(alpha: 0.7)
-      ..strokeWidth = 2.5
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round;
-    final goldPath = Path();
-    goldPath.moveTo(size.width * 0.05, size.height * 0.8);
-    goldPath.cubicTo(
-      size.width * 0.3, size.height * 0.5,
-      size.width * 0.6, size.height * 0.85,
-      size.width * 0.9, size.height * 0.55,
-    );
-    canvas.drawPath(goldPath, goldPaint);
-
-    // Start pin — gold circle
-    final startPaint = Paint()
-      ..color = const Color(0xFFECC382)
-      ..style = PaintingStyle.fill;
-    canvas.drawCircle(Offset(size.width * 0.08, size.height * 0.65), 7, startPaint);
-    final startRing = Paint()
-      ..color = Colors.white
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2;
-    canvas.drawCircle(Offset(size.width * 0.08, size.height * 0.65), 7, startRing);
-
-    // End pin — white/green flag marker
-    final endPaint = Paint()
-      ..color = Colors.white
-      ..style = PaintingStyle.fill;
-    canvas.drawCircle(Offset(size.width * 0.95, size.height * 0.3), 8, endPaint);
-    final endRing = Paint()
-      ..color = const Color(0xFFECC382)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2;
-    canvas.drawCircle(Offset(size.width * 0.95, size.height * 0.3), 8, endRing);
-
-    // Checkmark inside end pin
-    final checkPaint = Paint()
-      ..color = const Color(0xFF02494D)
-      ..strokeWidth = 2
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round;
-    final checkPath = Path();
-    final cx = size.width * 0.95;
-    final cy = size.height * 0.3;
-    checkPath.moveTo(cx - 3.5, cy);
-    checkPath.lineTo(cx - 0.5, cy + 3);
-    checkPath.lineTo(cx + 3, cy - 2.5);
-    canvas.drawPath(checkPath, checkPaint);
-
-    // Scattered location dots
-    final dotPaint = Paint()
-      ..color = const Color(0xFFECC382).withValues(alpha: 0.35)
-      ..style = PaintingStyle.fill;
-    for (final (dx, dy) in [
-      (0.35, 0.25), (0.65, 0.4), (0.2, 0.5), (0.5, 0.55), (0.75, 0.65)
-    ]) {
-      canvas.drawCircle(
-        Offset(size.width * dx, size.height * dy), 2, dotPaint);
-    }
+    _bird(
+        canvas, Offset(size.width * 0.75, size.height * 0.23), 1.0, birdPaint);
+    _bird(
+        canvas, Offset(size.width * 0.82, size.height * 0.26), 0.82, birdPaint);
   }
 
-  void _drawRoad(Canvas canvas, Size size, Paint paint,
-      Offset from, Offset to, double curve) {
-    final path = Path();
-    path.moveTo(from.dx, from.dy);
-    final cx = (from.dx + to.dx) / 2 + size.width * curve;
-    final cy = (from.dy + to.dy) / 2;
-    path.quadraticBezierTo(cx, cy, to.dx, to.dy);
+  void _cloud(Canvas canvas, Offset origin, double scale, Paint paint) {
+    final path = Path()
+      ..moveTo(origin.dx, origin.dy + 52 * scale)
+      ..cubicTo(
+          origin.dx + 30 * scale,
+          origin.dy + 24 * scale,
+          origin.dx + 58 * scale,
+          origin.dy + 72 * scale,
+          origin.dx + 82 * scale,
+          origin.dy + 34 * scale)
+      ..cubicTo(
+          origin.dx + 118 * scale,
+          origin.dy - 18 * scale,
+          origin.dx + 178 * scale,
+          origin.dy + 18 * scale,
+          origin.dx + 182 * scale,
+          origin.dy + 72 * scale)
+      ..lineTo(origin.dx, origin.dy + 72 * scale)
+      ..close();
+    canvas.drawPath(path, paint);
+  }
+
+  void _bird(Canvas canvas, Offset origin, double scale, Paint paint) {
+    final path = Path()
+      ..moveTo(origin.dx - 19 * scale, origin.dy)
+      ..quadraticBezierTo(
+          origin.dx - 9 * scale, origin.dy - 8 * scale, origin.dx, origin.dy)
+      ..quadraticBezierTo(origin.dx + 10 * scale, origin.dy - 8 * scale,
+          origin.dx + 20 * scale, origin.dy);
     canvas.drawPath(path, paint);
   }
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:cyclezen/core/theme/app_theme.dart';
 import 'package:cyclezen/domain/models/models.dart';
 import 'package:cyclezen/features/landing/pages/landing_page.dart';
 import 'package:cyclezen/features/auth/pages/auth_page.dart';
@@ -102,27 +103,44 @@ class _SplashRedirectState extends State<_SplashRedirect> {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      backgroundColor: Color(0xFF02494D),
-      body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.pedal_bike, size: 80, color: Color(0xFFECC382)),
-            SizedBox(height: 16),
-            Text('CycleZen',
-                style: TextStyle(
-                    fontFamily: 'Poppins',
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white)),
-            SizedBox(height: 24),
-            SizedBox(
-              width: 24, height: 24,
-              child: CircularProgressIndicator(
-                  strokeWidth: 2.5, color: Color(0xFFECC382)),
-            ),
-          ],
+    return Scaffold(
+      body: Container(
+        decoration: BoxDecoration(gradient: AppTheme.brandGradient),
+        child: const Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                width: 104,
+                height: 104,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                      color: Colors.white, shape: BoxShape.circle),
+                  child: Padding(
+                    padding: EdgeInsets.all(4),
+                    child: Image(
+                      image: AssetImage('assets/images/cyclezen_mark.png'),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 16),
+              Text('CycleZen',
+                  style: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white)),
+              SizedBox(height: 24),
+              SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(
+                    strokeWidth: 2.5, color: Color(0xFFECC382)),
+              ),
+            ],
+          ),
         ),
       ),
     );

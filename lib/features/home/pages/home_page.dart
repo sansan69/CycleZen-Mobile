@@ -382,9 +382,16 @@ class _BrandedAppBar extends StatelessWidget implements PreferredSizeWidget {
           child: Row(
             children: [
               // Brand identity
-              const Padding(
-                padding: EdgeInsets.only(left: 12, right: 8),
-                child: Icon(Icons.pedal_bike, color: Color(0xFFECC382), size: 28),
+              Padding(
+                padding: const EdgeInsets.only(left: 12, right: 8),
+                child: ClipOval(
+                  child: Image.asset(
+                    'assets/images/cyclezen_mark.png',
+                    width: 32,
+                    height: 32,
+                    fit: BoxFit.cover,
+                  ),
+                ),
               ),
               Expanded(
                 child: Column(
