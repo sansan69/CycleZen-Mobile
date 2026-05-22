@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "834716576876",
+    "project_id": "cyclezen-qdvh0",
+    "storage_bucket": "cyclezen-qdvh0.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:834716576876:android:6e2777dada5c71c4867c49",
+        "android_client_info": {
+          "package_name": "com.kalki.cyclezen"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "834716576876-a3han3a58ick0f8ktsr25ce9ahmmgv8i.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCG4xg_lQ6DNTDayEnKAogPsHTqgxSp1fM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "834716576876-a3han3a58ick0f8ktsr25ce9ahmmgv8i.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
