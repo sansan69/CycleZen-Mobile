@@ -85,7 +85,7 @@ class GpxService {
   /// Save GPX to a temporary file and return the file path
   static Future<File> exportToFile(CyclingRoute route) async {
     final gpx = generateGpx(route);
-    final dir = await getTemporaryDirectory();
+    final dir = await getApplicationDocumentsDirectory();
     final safeName = (route.routeName ?? '').replaceAll(RegExp(r'[^\w\s-]'), '').trim();
     final filename = safeName.isNotEmpty
         ? '${safeName.replaceAll(' ', '_')}.gpx'
@@ -98,7 +98,7 @@ class GpxService {
   /// Save GPX from RideRecording to a temporary file
   static Future<File> exportRideToFile(RideRecording ride) async {
     final gpx = generateGpxFromRide(ride);
-    final dir = await getTemporaryDirectory();
+    final dir = await getApplicationDocumentsDirectory();
     final safeName = (ride.route.routeName ?? '').replaceAll(RegExp(r'[^\w\s-]'), '').trim();
     final filename = safeName.isNotEmpty
         ? '${safeName.replaceAll(' ', '_')}.gpx'

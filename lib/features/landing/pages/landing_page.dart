@@ -1,4 +1,5 @@
 import 'package:cyclezen/core/theme/app_theme.dart';
+import 'package:cyclezen/core/constants/app_assets.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -63,6 +64,8 @@ class _LandingPageState extends State<LandingPage>
         children: [
           _LandingBackdrop(ambientController: _ambientController),
           SafeArea(
+            top: true,
+            bottom: false,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 28),
               child: Column(
@@ -80,7 +83,7 @@ class _LandingPageState extends State<LandingPage>
                         );
                       },
                       child: Image.asset(
-                        'assets/images/cyclezen_mark_transparent.png',
+                        AppAssets.logoMark,
                         width: logoSize,
                         height: logoSize,
                         fit: BoxFit.contain,
@@ -162,13 +165,36 @@ class _LandingPageState extends State<LandingPage>
                     delay: 0.46,
                     child: _SwipeStartControl(onComplete: _startRiding),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 16),
                   _Entrance(
                     controller: _introController,
                     delay: 0.54,
-                    child: const _PageDots(),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      decoration: BoxDecoration(
+                        border: Border(
+                          top: BorderSide(color: Colors.white.withValues(alpha: 0.18), width: 1),
+                        ),
+                      ),
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.pedal_bike, size: 14, color: Color(0x99FFFFFF)),
+                          SizedBox(width: 8),
+                          Text(
+                            'CycleZen © 2026',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Color(0x99FFFFFF),
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                  const SizedBox(height: 18),
                 ],
               ),
             ),
@@ -297,7 +323,6 @@ class _CycleZenWordmark extends StatelessWidget {
             Text(
               'Cycle',
               style: TextStyle(
-                fontFamily: 'Poppins',
                 fontSize: fontSize,
                 fontWeight: FontWeight.w400,
                 height: 0.95,
@@ -311,7 +336,6 @@ class _CycleZenWordmark extends StatelessWidget {
               child: Text(
                 'Zen',
                 style: TextStyle(
-                  fontFamily: 'Poppins',
                   fontSize: fontSize,
                   fontWeight: FontWeight.w600,
                   height: 0.95,
@@ -380,7 +404,7 @@ class _SwipeStartControlState extends State<_SwipeStartControl>
       duration: const Duration(milliseconds: 260),
     )..addListener(() {
         final animation = _settleAnimation;
-        if (animation != null) {
+        if (animation != null && mounted) {
           setState(() => _progress = animation.value);
         }
       });
@@ -505,7 +529,6 @@ class _SwipeStartControlState extends State<_SwipeStartControl>
                             _completed ? 'Starting...' : 'Swipe to Start',
                             textAlign: TextAlign.center,
                             style: const TextStyle(
-                              fontFamily: 'Poppins',
                               fontSize: 23,
                               fontWeight: FontWeight.w800,
                               color: Colors.white,
@@ -566,39 +589,6 @@ class _SwipeStartControlState extends State<_SwipeStartControl>
           );
         },
       ),
-    );
-  }
-}
-
-class _PageDots extends StatelessWidget {
-  const _PageDots();
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(3, (index) {
-        final selected = index == 1;
-        return Container(
-          width: selected ? 15 : 13,
-          height: selected ? 15 : 13,
-          margin: const EdgeInsets.symmetric(horizontal: 7),
-          decoration: BoxDecoration(
-            color: selected
-                ? AppTheme.greenAccent
-                : Colors.white.withValues(alpha: 0.5),
-            shape: BoxShape.circle,
-            boxShadow: selected
-                ? [
-                    BoxShadow(
-                      color: AppTheme.greenAccent.withValues(alpha: 0.35),
-                      blurRadius: 10,
-                    ),
-                  ]
-                : null,
-          ),
-        );
-      }),
     );
   }
 }

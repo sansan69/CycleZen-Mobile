@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:cyclezen/core/theme/app_theme.dart';
+import 'package:cyclezen/core/constants/app_assets.dart';
 import 'package:cyclezen/features/auth/bloc/auth_bloc.dart';
 
 /// Multi-provider auth page: Google, Email/Password, Phone.
@@ -21,7 +23,8 @@ class _AuthPageState extends State<AuthPage> with SingleTickerProviderStateMixin
   final _nameCtrl = TextEditingController();
   final _phoneCtrl = TextEditingController();
   final _otpCtrl = TextEditingController();
-  final _formKey = GlobalKey<FormState>();
+  final _signInFormKey = GlobalKey<FormState>();
+  final _signUpFormKey = GlobalKey<FormState>();
   bool _obscurePassword = true;
   bool _showOtpField = false;
   String? _verificationId;
@@ -48,6 +51,7 @@ class _AuthPageState extends State<AuthPage> with SingleTickerProviderStateMixin
     final theme = Theme.of(context);
 
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         title: const Text('CycleZen'),
         centerTitle: true,
@@ -58,7 +62,7 @@ class _AuthPageState extends State<AuthPage> with SingleTickerProviderStateMixin
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthStateAuthenticated) {
-            Navigator.pop(context);
+            context.go('/home');
           } else if (state is AuthStateError) {
             _showError(state.message, state.details);
           } else if (state is AuthStatePasswordResetSent) {
@@ -82,7 +86,7 @@ class _AuthPageState extends State<AuthPage> with SingleTickerProviderStateMixin
                 // ── Logo ──
                 ClipOval(
                   child: Image.asset(
-                    'assets/images/cyclezen_mark_transparent.png',
+                    AppAssets.logoMark,
                     width: 64,
                     height: 64,
                     fit: BoxFit.cover,
@@ -183,7 +187,7 @@ class _AuthPageState extends State<AuthPage> with SingleTickerProviderStateMixin
 
   Widget _buildSignInTab(ThemeData theme, bool isLoading) {
     return Form(
-      key: _formKey,
+      key: _signInFormKey,
       child: Column(
         children: [
           TextField(
@@ -239,7 +243,7 @@ class _AuthPageState extends State<AuthPage> with SingleTickerProviderStateMixin
 
   Widget _buildSignUpTab(ThemeData theme, bool isLoading) {
     return Form(
-      key: _formKey,
+      key: _signUpFormKey,
       child: Column(
         children: [
           TextField(

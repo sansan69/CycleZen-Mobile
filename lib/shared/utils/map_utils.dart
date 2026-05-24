@@ -178,9 +178,11 @@ class MapUtils {
   /// Compute bounds that encompass all coordinates, with padding.
   static LatLngBounds computeBounds(List<Coordinate> coords, {double padding = 0.02}) {
     if (coords.isEmpty) {
+      // Kerala center as safe fallback
+      const keralaCenter = LatLng(10.8505, 76.2711);
       return LatLngBounds(
-        southwest: const LatLng(0, 0),
-        northeast: const LatLng(0, 0),
+        southwest: keralaCenter,
+        northeast: keralaCenter,
       );
     }
     double minLat = coords.first.lat;

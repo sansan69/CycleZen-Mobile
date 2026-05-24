@@ -36,14 +36,6 @@ class AuthEventResetPassword extends AuthEvent {
   final String email;
   const AuthEventResetPassword({required this.email});
 }
-class AuthEventPhoneCodeSent extends AuthEvent {
-  final String verificationId;
-  final int? resendToken;
-  const AuthEventPhoneCodeSent({
-    required this.verificationId,
-    this.resendToken,
-  });
-}
 class AuthEventVerifyPhoneCode extends AuthEvent {
   final String verificationId;
   final String smsCode;
@@ -83,14 +75,6 @@ class AuthStateError extends AuthState {
   final String message;
   final String? details;
   const AuthStateError(this.message, {this.details});
-}
-class AuthStatePhoneCodeSent extends AuthState {
-  final String verificationId;
-  final int? resendToken;
-  const AuthStatePhoneCodeSent({
-    required this.verificationId,
-    this.resendToken,
-  });
 }
 class AuthStatePasswordResetSent extends AuthState {
   const AuthStatePasswordResetSent();

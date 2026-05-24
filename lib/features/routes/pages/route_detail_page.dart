@@ -18,6 +18,8 @@ class RouteDetailPage extends StatefulWidget {
 class _RouteDetailPageState extends State<RouteDetailPage> {
   final RouteRepository _routeRepo = RouteRepository();
   CyclingRoute? _route;
+  bool _loading = true;
+  bool _notFound = false;
   GoogleMapController? _mapController;
 
   @override
@@ -29,7 +31,11 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
   Future<void> _loadRoute() async {
     final routes = await _routeRepo.getSavedRoutes();
     final route = routes.where((r) => r.id == widget.routeId).firstOrNull;
-    if (mounted) setState(() => _route = route);
+    if (mounted) setState(() {
+      _route = route;
+      _notFound = route == null;
+      _loading = false;
+    });
   }
 
   void _onMapCreated(GoogleMapController controller) {
@@ -69,14 +75,32 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
           ],
         ],
       ),
-      body: _route == null
+      body: _loading
           ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
+          : _notFound
+              ? Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.error_outline, size: 64, color: Colors.grey.shade400),
+                      const SizedBox(height: 16),
+                      const Text('Route not found', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+                      const SizedBox(height: 8),
+                      const Text('This route may have been deleted.', style: TextStyle(color: Colors.grey)),
+                      const SizedBox(height: 24),
+                      ElevatedButton(
+                        onPressed: () => context.pop(),
+                        child: const Text('Go Back'),
+                      ),
+                    ],
+                  ),
+                )
+              : SingleChildScrollView(
               child: Column(
-                children: [
+                  children: [
                   SizedBox(
                     height: 300,
-                    child: GoogleMap(
+                    child: _route!.coordinates.isNotEmpty ? GoogleMap(
                       initialCameraPosition: CameraPosition(
                         target: LatLng(_route!.coordinates.first.lat, _route!.coordinates.first.lng),
                         zoom: 13,
@@ -91,7 +115,8 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
                       },
                       markers: MapUtils.buildRouteMarkers(_route!, prefix: 'dtl_'),
                       zoomControlsEnabled: false, mapToolbarEnabled: false,
-                    ),
+                      myLocationEnabled: false,
+                    ) : const Center(child: Text('No path coordinates')),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(16),

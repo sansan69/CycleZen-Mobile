@@ -9,6 +9,8 @@ class ThemeModeNotifier extends ValueNotifier<ThemeMode> {
     _load();
   }
 
+  ThemeModeNotifier.withMode(ThemeMode initial) : super(initial);
+
   Future<void> _load() async {
     final prefs = await SharedPreferences.getInstance();
     final stored = prefs.getString(_key);
@@ -27,14 +29,14 @@ class ThemeModeNotifier extends ValueNotifier<ThemeMode> {
   }
 }
 
-/// CycleZen brand theme shared with the web app.
+/// CycleZen brand theme.
 ///
 /// Palette:
 /// Deep Teal #0F4D4D, Route Teal #1D7F78, Mint #58B3A6,
 /// Sky #CFE8F6, Sunrise Gold #F5C36A, Cloud White #F5FBFA.
 ///
-/// Typography: Poppins (headings) + Montserrat (body).
-/// All text uses clean dark shadows — no white haze.
+/// Uses the system font (Roboto on Android, SF Pro on iOS) —
+/// crisp, hinted, and optimized for each device's display.
 class AppTheme {
   AppTheme._();
 
@@ -53,43 +55,21 @@ class AppTheme {
   static const Color cardDark = Color(0xFF0D383A);
 
   // ── Semantic text colors ──
-  static const Color textPrimary = Color(0xFF0A1A1C);     // near-black teal
-  static const Color textSecondary = Color(0xFF2D5A5C);   // muted dark teal
-  static const Color textOnDark = Color(0xFFF5FBFA);      // cloud white
-  static const Color textOnDarkMuted = Color(0xFFB8D8D4); // muted mint on dark
-  static const Color textHint = Color(0xFF6B8A8C);        // placeholder/secondary
+  static const Color textPrimary = Color(0xFF0A1A1C);
+  static const Color textSecondary = Color(0xFF2D5A5C);
+  static const Color textOnDark = Color(0xFFF5FBFA);
+  static const Color textOnDarkMuted = Color(0xFFB8D8D4);
+  static const Color textHint = Color(0xFF6B8A8C);
 
-  // ── Font families ──
-  static const String _headingFont = 'Poppins';
-  static const String _bodyFont = 'Montserrat';
-
-  // ── Text shadows (clean, no white haze) ──
-
-  /// Subtle dark shadow for dark text on light backgrounds.
+  // ── Text shadows ──
   static List<Shadow> get textShadowSubtle => const [
-        Shadow(
-          color: Color(0x18000000),
-          blurRadius: 4,
-          offset: Offset(0, 1),
-        ),
+        Shadow(color: Color(0x18000000), blurRadius: 4, offset: Offset(0, 1)),
       ];
-
-  /// Crisp shadow for white/light text on dark backgrounds.
   static List<Shadow> get textShadowOnDark => const [
-        Shadow(
-          color: Color(0x40000000),
-          blurRadius: 8,
-          offset: Offset(0, 2),
-        ),
+        Shadow(color: Color(0x40000000), blurRadius: 8, offset: Offset(0, 2)),
       ];
-
-  /// Strong shadow for hero/display text on variable backgrounds.
   static List<Shadow> get textShadowHero => const [
-        Shadow(
-          color: Color(0x30000000),
-          blurRadius: 16,
-          offset: Offset(0, 4),
-        ),
+        Shadow(color: Color(0x30000000), blurRadius: 16, offset: Offset(0, 4)),
       ];
 
   // ── Gradients ──
@@ -124,76 +104,61 @@ class AppTheme {
         offset: const Offset(0, 8),
       );
 
-  // ── Text theme builder ──
+  // ── Text theme — system font (Roboto/SF Pro), crisp and hinted ──
 
-  static TextTheme _buildTextTheme(TextTheme base) {
+  static TextTheme _buildTextTheme(TextTheme base, bool isDark) {
+    final onSurface = isDark ? textOnDark : textPrimary;
+    final onSurfaceVariant = isDark ? textOnDarkMuted : textSecondary;
+
     return base.copyWith(
-      displayLarge:
-          _heading(base.displayLarge, 57, FontWeight.w800, -0.5, 1.12),
-      displayMedium:
-          _heading(base.displayMedium, 45, FontWeight.w800, -0.3, 1.14),
-      displaySmall:
-          _heading(base.displaySmall, 36, FontWeight.w800, -0.2, 1.16),
-      headlineLarge:
-          _heading(base.headlineLarge, 32, FontWeight.w800, -0.4, 1.18),
-      headlineMedium:
-          _heading(base.headlineMedium, 28, FontWeight.w700, -0.3, 1.20),
-      headlineSmall:
-          _heading(base.headlineSmall, 24, FontWeight.w700, -0.2, 1.22),
-      titleLarge:
-          _heading(base.titleLarge, 22, FontWeight.w700, -0.2, 1.25),
-      titleMedium:
-          _heading(base.titleMedium, 16, FontWeight.w600, 0, 1.30),
-      titleSmall:
-          _heading(base.titleSmall, 14, FontWeight.w600, 0, 1.30),
-      bodyLarge:
-          _body(base.bodyLarge, 16, FontWeight.w400, 0, 1.50),
-      bodyMedium:
-          _body(base.bodyMedium, 14, FontWeight.w400, 0, 1.45),
-      bodySmall:
-          _body(base.bodySmall, 12, FontWeight.w400, 0, 1.40),
-      labelLarge:
-          _heading(base.labelLarge, 14, FontWeight.w700, 0.5, 1.25),
-      labelMedium:
-          _heading(base.labelMedium, 12, FontWeight.w600, 0.5, 1.25),
-      labelSmall:
-          _heading(base.labelSmall, 11, FontWeight.w600, 0.8, 1.20),
-    );
-  }
-
-  static TextStyle _heading(
-    TextStyle? style,
-    double fontSize,
-    FontWeight weight,
-    double letterSpacing,
-    double height,
-  ) {
-    return TextStyle(
-      fontFamily: _headingFont,
-      fontSize: style?.fontSize ?? fontSize,
-      fontWeight: style?.fontWeight ?? weight,
-      letterSpacing: style?.letterSpacing ?? letterSpacing,
-      height: style?.height ?? height,
-      color: style?.color,
-      decoration: style?.decoration,
-    );
-  }
-
-  static TextStyle _body(
-    TextStyle? style,
-    double fontSize,
-    FontWeight weight,
-    double letterSpacing,
-    double height,
-  ) {
-    return TextStyle(
-      fontFamily: _bodyFont,
-      fontSize: style?.fontSize ?? fontSize,
-      fontWeight: style?.fontWeight ?? weight,
-      letterSpacing: style?.letterSpacing ?? letterSpacing,
-      height: style?.height ?? height,
-      color: style?.color,
-      decoration: style?.decoration,
+      displayLarge: base.displayLarge?.copyWith(
+        fontSize: 57, fontWeight: FontWeight.w800, letterSpacing: -0.5, height: 1.12,
+      ),
+      displayMedium: base.displayMedium?.copyWith(
+        fontSize: 45, fontWeight: FontWeight.w800, letterSpacing: -0.3, height: 1.14,
+      ),
+      displaySmall: base.displaySmall?.copyWith(
+        fontSize: 36, fontWeight: FontWeight.w800, letterSpacing: -0.2, height: 1.16,
+      ),
+      headlineLarge: base.headlineLarge?.copyWith(
+        fontSize: 32, fontWeight: FontWeight.w800, letterSpacing: -0.4, height: 1.18,
+      ),
+      headlineMedium: base.headlineMedium?.copyWith(
+        fontSize: 28, fontWeight: FontWeight.w700, letterSpacing: -0.3, height: 1.20,
+      ),
+      headlineSmall: base.headlineSmall?.copyWith(
+        fontSize: 24, fontWeight: FontWeight.w700, letterSpacing: -0.2, height: 1.22,
+      ),
+      titleLarge: base.titleLarge?.copyWith(
+        fontSize: 22, fontWeight: FontWeight.w700, letterSpacing: -0.2, height: 1.25,
+      ),
+      titleMedium: base.titleMedium?.copyWith(
+        fontSize: 16, fontWeight: FontWeight.w600, letterSpacing: 0, height: 1.30,
+      ),
+      titleSmall: base.titleSmall?.copyWith(
+        fontSize: 14, fontWeight: FontWeight.w600, letterSpacing: 0, height: 1.30,
+      ),
+      bodyLarge: base.bodyLarge?.copyWith(
+        fontSize: 16, fontWeight: FontWeight.w400, letterSpacing: 0, height: 1.50,
+        color: onSurface,
+      ),
+      bodyMedium: base.bodyMedium?.copyWith(
+        fontSize: 14, fontWeight: FontWeight.w400, letterSpacing: 0, height: 1.45,
+        color: onSurfaceVariant,
+      ),
+      bodySmall: base.bodySmall?.copyWith(
+        fontSize: 12, fontWeight: FontWeight.w400, letterSpacing: 0, height: 1.40,
+        color: onSurfaceVariant,
+      ),
+      labelLarge: base.labelLarge?.copyWith(
+        fontSize: 14, fontWeight: FontWeight.w700, letterSpacing: 0.5, height: 1.25,
+      ),
+      labelMedium: base.labelMedium?.copyWith(
+        fontSize: 12, fontWeight: FontWeight.w600, letterSpacing: 0.5, height: 1.25,
+      ),
+      labelSmall: base.labelSmall?.copyWith(
+        fontSize: 12, fontWeight: FontWeight.w600, letterSpacing: 0.5, height: 1.25,
+      ),
     );
   }
 
@@ -237,24 +202,19 @@ class AppTheme {
       brightness: Brightness.light,
       colorScheme: colorScheme,
       scaffoldBackgroundColor: cloudWhite,
-      textTheme: _buildTextTheme(ThemeData.light().textTheme),
+      textTheme: _buildTextTheme(ThemeData.light().textTheme, false),
       appBarTheme: const AppBarTheme(
         centerTitle: true,
         elevation: 0,
         scrolledUnderElevation: 0,
         backgroundColor: primaryDark,
         foregroundColor: Colors.white,
-        shadowColor: Color(0x40000000),
         titleTextStyle: TextStyle(
-          fontFamily: _headingFont,
           fontSize: 20,
           fontWeight: FontWeight.w800,
           color: Colors.white,
           letterSpacing: -0.2,
           height: 1.2,
-          shadows: [
-            Shadow(color: Color(0x40000000), blurRadius: 6, offset: Offset(0, 2)),
-          ],
         ),
       ),
       cardTheme: CardThemeData(
@@ -277,14 +237,10 @@ class AppTheme {
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 15),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
           textStyle: const TextStyle(
-            fontFamily: _headingFont,
             fontWeight: FontWeight.w700,
             fontSize: 15,
             letterSpacing: 0.3,
             height: 1.2,
-            shadows: [
-              Shadow(color: Color(0x30000000), blurRadius: 4, offset: Offset(0, 1)),
-            ],
           ),
         ),
       ),
@@ -295,7 +251,6 @@ class AppTheme {
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 15),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
           textStyle: const TextStyle(
-            fontFamily: _headingFont,
             fontWeight: FontWeight.w600,
             letterSpacing: 0.2,
           ),
@@ -304,8 +259,8 @@ class AppTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: Colors.white,
-        hintStyle: const TextStyle(color: textHint, fontFamily: _bodyFont),
-        labelStyle: const TextStyle(color: textSecondary, fontFamily: _bodyFont),
+        hintStyle: const TextStyle(color: textHint),
+        labelStyle: const TextStyle(color: textSecondary),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(18),
           borderSide: BorderSide(color: secondaryTeal.withValues(alpha: 0.18)),
@@ -329,7 +284,6 @@ class AppTheme {
         backgroundColor: mintCenter,
         selectedColor: greenAccent.withValues(alpha: 0.22),
         labelStyle: const TextStyle(
-          fontFamily: _bodyFont,
           fontSize: 12,
           fontWeight: FontWeight.w600,
           color: primaryDark,
@@ -342,7 +296,6 @@ class AppTheme {
       snackBarTheme: SnackBarThemeData(
         backgroundColor: primaryDark,
         contentTextStyle: const TextStyle(
-          fontFamily: _bodyFont,
           color: Colors.white,
           fontWeight: FontWeight.w500,
           letterSpacing: 0.1,
@@ -370,7 +323,6 @@ class AppTheme {
           borderRadius: BorderRadius.circular(10),
         ),
         textStyle: const TextStyle(
-          fontFamily: _bodyFont,
           color: Colors.white,
           fontWeight: FontWeight.w500,
         ),
@@ -403,24 +355,19 @@ class AppTheme {
       brightness: Brightness.dark,
       colorScheme: colorScheme,
       scaffoldBackgroundColor: backgroundDark,
-      textTheme: _buildTextTheme(ThemeData.dark().textTheme),
+      textTheme: _buildTextTheme(ThemeData.dark().textTheme, true),
       appBarTheme: const AppBarTheme(
         centerTitle: true,
         elevation: 0,
         scrolledUnderElevation: 0,
         backgroundColor: surfaceDark,
         foregroundColor: Colors.white,
-        shadowColor: Colors.black54,
         titleTextStyle: TextStyle(
-          fontFamily: _headingFont,
           fontSize: 20,
           fontWeight: FontWeight.w800,
           color: Colors.white,
           letterSpacing: -0.2,
           height: 1.2,
-          shadows: [
-            Shadow(color: Colors.black45, blurRadius: 6, offset: Offset(0, 2)),
-          ],
         ),
       ),
       cardTheme: CardThemeData(
@@ -443,7 +390,6 @@ class AppTheme {
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 15),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
           textStyle: const TextStyle(
-            fontFamily: _headingFont,
             fontWeight: FontWeight.w700,
             fontSize: 15,
             letterSpacing: 0.3,
@@ -458,7 +404,6 @@ class AppTheme {
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 15),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
           textStyle: const TextStyle(
-            fontFamily: _headingFont,
             fontWeight: FontWeight.w600,
             letterSpacing: 0.2,
           ),
@@ -467,14 +412,8 @@ class AppTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: surfaceDark,
-        hintStyle: const TextStyle(
-          color: Color(0xFF6B8A8C),
-          fontFamily: _bodyFont,
-        ),
-        labelStyle: const TextStyle(
-          color: textOnDarkMuted,
-          fontFamily: _bodyFont,
-        ),
+        hintStyle: const TextStyle(color: Color(0xFF6B8A8C)),
+        labelStyle: const TextStyle(color: textOnDarkMuted),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(18)),
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 18, vertical: 15),
@@ -492,7 +431,6 @@ class AppTheme {
         backgroundColor: greenAccent.withValues(alpha: 0.14),
         selectedColor: greenAccent.withValues(alpha: 0.28),
         labelStyle: const TextStyle(
-          fontFamily: _bodyFont,
           fontSize: 12,
           fontWeight: FontWeight.w600,
           color: textOnDark,
@@ -505,7 +443,6 @@ class AppTheme {
       snackBarTheme: SnackBarThemeData(
         backgroundColor: cardDark,
         contentTextStyle: const TextStyle(
-          fontFamily: _bodyFont,
           color: Colors.white,
           fontWeight: FontWeight.w500,
           letterSpacing: 0.1,
@@ -523,7 +460,7 @@ class AppTheme {
         elevation: 8,
       ),
       dividerTheme: const DividerThemeData(
-        color: Color(0x20FFFFFF),
+        color: Color(0x18FFFFFF),
         thickness: 1,
         space: 1,
       ),
@@ -533,7 +470,6 @@ class AppTheme {
           borderRadius: BorderRadius.circular(10),
         ),
         textStyle: const TextStyle(
-          fontFamily: _bodyFont,
           color: Colors.white,
           fontWeight: FontWeight.w500,
         ),

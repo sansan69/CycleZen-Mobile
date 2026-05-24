@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:cyclezen/domain/models/models.dart';
 
@@ -174,16 +172,18 @@ class _SummaryTile extends StatelessWidget {
         ),
         const SizedBox(height: 6),
         Text(label,
-            style: theme.textTheme.bodySmall?.copyWith(
-                fontWeight: FontWeight.w600),
+            style: theme.textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+                fontSize: 13),
             textAlign: TextAlign.center,
             maxLines: 2,
             overflow: TextOverflow.ellipsis),
         const SizedBox(height: 2),
         Text(value,
             style: theme.textTheme.bodySmall?.copyWith(
-                fontSize: 11,
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.5)),
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.65)),
             textAlign: TextAlign.center),
       ],
     );

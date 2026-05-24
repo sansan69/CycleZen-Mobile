@@ -18,7 +18,7 @@ class WeatherService {
         'forecast_days': '1',
         'timezone': 'auto',
       });
-      final resp = await http.get(uri).timeout(const Duration(seconds: 8));
+      final resp = await http.get(uri).timeout(const Duration(seconds: 5));
       if (resp.statusCode != 200) return null;
       final data = json.decode(resp.body);
       return WeatherData(

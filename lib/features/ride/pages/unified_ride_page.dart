@@ -63,6 +63,7 @@ class _UnifiedRidePageState extends State<UnifiedRidePage> {
       if (mounted) setState(() => _rideState = s);
     });
     _pathSub = _trackingService.pathStream.listen((path) {
+      if (!mounted) return;
       setState(() {
         _recordedPath.clear();
         _recordedPath.addAll(path.map((c) => LatLng(c.lat, c.lng)));
@@ -100,7 +101,7 @@ class _UnifiedRidePageState extends State<UnifiedRidePage> {
       );
       return;
     }
-    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+    await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     try {
       _trackingService.startRide(
         steps: _route.steps,
@@ -135,7 +136,7 @@ class _UnifiedRidePageState extends State<UnifiedRidePage> {
     );
     if (confirmed != true) return;
 
-    SystemChrome.setPreferredOrientations([]);
+    await SystemChrome.setPreferredOrientations([]);
     final recording = _trackingService.stopRide(plannedRoute: _route);
     try {
       await _rideRepo.saveCompletedRide(recording);

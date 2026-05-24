@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cyclezen/core/theme/app_theme.dart';
+import 'package:cyclezen/core/constants/app_assets.dart';
 import 'package:cyclezen/domain/models/models.dart';
 import 'package:cyclezen/features/landing/pages/landing_page.dart';
 import 'package:cyclezen/features/auth/pages/auth_page.dart';
@@ -12,6 +13,36 @@ import 'package:cyclezen/features/profile/pages/profile_page.dart';
 import 'package:cyclezen/features/dashboard/pages/dashboard_page.dart';
 import 'package:cyclezen/features/onboarding/pages/onboarding_page.dart';
 
+/// Custom page builder with smooth slide transitions for native-feel navigation.
+class _SlideTransitionPage extends CustomTransitionPage<void> {
+  _SlideTransitionPage({
+    required super.child,
+    super.key,
+  }) : super(
+    transitionDuration: const Duration(milliseconds: 280),
+    reverseTransitionDuration: const Duration(milliseconds: 220),
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      // Slide from right + gentle fade
+      return SlideTransition(
+        position: Tween<Offset>(
+          begin: const Offset(0.08, 0),
+          end: Offset.zero,
+        ).animate(CurvedAnimation(
+          parent: animation,
+          curve: Curves.easeOutCubic,
+        )),
+        child: FadeTransition(
+          opacity: CurvedAnimation(
+            parent: animation,
+            curve: const Interval(0, 0.5, curve: Curves.easeIn),
+          ),
+          child: child,
+        ),
+      );
+    },
+  );
+}
+
 class AppRouter {
   late final GoRouter config = GoRouter(
     initialLocation: '/splash',
@@ -19,66 +50,92 @@ class AppRouter {
       // Internal splash → always routes to landing
       GoRoute(
         path: '/splash',
-        builder: (context, state) => const _SplashRedirect(),
+        pageBuilder: (context, state) => const MaterialPage(
+          child: _SplashRedirect(),
+        ),
       ),
 
       // ── Landing (root) ──
       GoRoute(
         path: '/',
         name: 'landing',
-        builder: (context, state) => const LandingPage(),
+        pageBuilder: (context, state) => const MaterialPage(
+          child: LandingPage(),
+        ),
       ),
 
-      // ── Home ──
+      // ── Home (with slide transition) ──
       GoRoute(
         path: '/home',
         name: 'home',
-        builder: (context, state) => const HomePage(),
+        pageBuilder: (context, state) => _SlideTransitionPage(
+          child: const HomePage(),
+        ),
       ),
 
       // ── Onboarding ──
       GoRoute(
         path: '/onboarding',
         name: 'onboarding',
-        builder: (context, state) => const OnboardingPage(),
+        pageBuilder: (context, state) => _SlideTransitionPage(
+          child: const OnboardingPage(),
+        ),
       ),
 
       // ── Auth ──
       GoRoute(
         path: '/auth',
         name: 'auth',
-        builder: (context, state) => const AuthPage(),
+        pageBuilder: (context, state) => _SlideTransitionPage(
+          child: const AuthPage(),
+        ),
       ),
 
       // ── Detail pages ──
       GoRoute(
         path: '/route/:id',
         name: 'route-detail',
-        builder: (context, state) => RouteDetailPage(
-          routeId: state.pathParameters['id']!,
+        pageBuilder: (context, state) => _SlideTransitionPage(
+          child: RouteDetailPage(
+            routeId: state.pathParameters['id'] ?? '',
+          ),
         ),
       ),
       GoRoute(
         path: '/saved-routes',
         name: 'saved-routes',
-        builder: (context, state) => const SavedRoutesPage(),
+        pageBuilder: (context, state) => _SlideTransitionPage(
+          child: const SavedRoutesPage(),
+        ),
       ),
       GoRoute(
         path: '/ride',
         name: 'ride',
-        builder: (context, state) => UnifiedRidePage(
-          route: state.extra as CyclingRoute,
-        ),
+        pageBuilder: (context, state) {
+          final route = state.extra;
+          if (route is! CyclingRoute) {
+            return const MaterialPage(
+              child: Scaffold(body: Center(child: Text('Invalid route data'))),
+            );
+          }
+          return _SlideTransitionPage(
+            child: UnifiedRidePage(route: route),
+          );
+        },
       ),
       GoRoute(
         path: '/profile',
         name: 'profile',
-        builder: (context, state) => const ProfilePage(),
+        pageBuilder: (context, state) => _SlideTransitionPage(
+          child: const ProfilePage(),
+        ),
       ),
       GoRoute(
         path: '/dashboard',
         name: 'dashboard',
-        builder: (context, state) => const DashboardPage(),
+        pageBuilder: (context, state) => _SlideTransitionPage(
+          child: const DashboardPage(),
+        ),
       ),
     ],
   );
@@ -95,8 +152,7 @@ class _SplashRedirectState extends State<_SplashRedirect> {
   @override
   void initState() {
     super.initState();
-    // Brief pause so splash is visible, then go to landing
-    Future.delayed(const Duration(milliseconds: 600), () {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) context.go('/');
     });
   }
@@ -120,7 +176,7 @@ class _SplashRedirectState extends State<_SplashRedirect> {
                     padding: EdgeInsets.all(4),
                     child: Image(
                       image: AssetImage(
-                          'assets/images/cyclezen_mark_transparent.png'),
+                          AppAssets.logoMark),
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -129,7 +185,6 @@ class _SplashRedirectState extends State<_SplashRedirect> {
               SizedBox(height: 16),
               Text('CycleZen',
                   style: TextStyle(
-                      fontFamily: 'Poppins',
                       fontSize: 32,
                       fontWeight: FontWeight.bold,
                       color: Colors.white)),

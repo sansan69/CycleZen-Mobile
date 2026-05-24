@@ -27,13 +27,12 @@ dependencies:
   # Maps & Location
   google_maps_flutter: ^2.10.1
   geolocator: ^13.0.2
-  location: ^8.0.0
   flutter_polyline_points: ^2.1.0
 
   # Navigation & Voice
   flutter_tts: ^4.2.2
 
-  # UI (google_fonts removed — fonts bundled locally for instant loading)
+  # UI (system font — Roboto/SF Pro, crisp and hinted)
   flutter_svg: ^2.0.17
   shimmer: ^3.0.0
   cached_network_image: ^3.4.1
@@ -74,21 +73,3 @@ flutter:
     - assets/images/
     - assets/icons/
     - assets/sounds/
-
-  fonts:
-    - family: Poppins
-      fonts:
-        - asset: assets/fonts/Poppins-Regular.ttf
-          weight: 400
-        - asset: assets/fonts/Poppins-Bold.ttf
-          weight: 700
-        - asset: assets/fonts/Poppins-ExtraBold.ttf
-          weight: 800
-    - family: Montserrat
-      fonts:
-        - asset: assets/fonts/Montserrat-Regular.ttf
-          weight: 400
-        - asset: assets/fonts/Montserrat-SemiBold.ttf
-          weight: 600
-        - asset: assets/fonts/Montserrat-Bold.ttf
-          weight: 700

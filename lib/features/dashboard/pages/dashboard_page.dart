@@ -38,6 +38,7 @@ class _DashboardPageState extends State<DashboardPage> {
       final achievements = _achievementService.calculateAchievements(rides);
       final progress = _achievementService.getProgress(rides);
       final metrics = _trainingService.calculateMetrics(rides);
+      if (!mounted) return;
       setState(() {
         _rides = rides;
         _achievements = achievements;
@@ -46,7 +47,14 @@ class _DashboardPageState extends State<DashboardPage> {
         _loading = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() => _loading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to load data: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
@@ -239,7 +247,6 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
-  String _formatDate(DateTime date) => '${date.day}/${date.month}/${date.year}';
 }
 
 class _StatCard extends StatelessWidget {

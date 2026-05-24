@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:math';
-import 'package:flutter/services.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:cyclezen/domain/models/models.dart';
@@ -25,9 +24,7 @@ class RideTrackingService {
   static const double _speedAlpha = 0.25;  // lower = smoother, slower to respond
 
   // ── Stationary detection ──
-  DateTime? _lastMovementTime;
   int _consecutiveStationaryReadings = 0;
-  int _consecutiveMovingReadings = 0;
   static const double _stationarySpeedMs = 1.2;    // below this = candidate for stationary (~4.3 km/h)
   static const double _stationaryDeltaM = 3.0;      // position change below this = candidate
   static const int _stationaryReadingsToPause = 8;  // ~24s at 3s intervals
@@ -109,11 +106,9 @@ class RideTrackingService {
     _smoothedSpeedMs = 0;
     _recordedPath.clear();
     _startTime = DateTime.now();
-    _lastMovementTime = DateTime.now();
     _pausedDuration = Duration.zero;
     _lastPosition = null;
     _consecutiveStationaryReadings = 0;
-    _consecutiveMovingReadings = 0;
     _status = RideStatus.active;
     _steps = steps;
     _routeCoordinates = routeCoords;
@@ -128,7 +123,7 @@ class RideTrackingService {
     _positionSubscription = Geolocator.getPositionStream(
       locationSettings: const LocationSettings(
         accuracy: LocationAccuracy.bestForNavigation,
-        distanceFilter: 1,  // 1m filter — we handle drift in software
+        distanceFilter: 1,
       ),
     ).listen(_onPositionUpdate);
   }
@@ -141,7 +136,7 @@ class RideTrackingService {
   }
 
   void _onPositionUpdate(Position position) {
-    // ── Apply EMA speed smoothing ──
+    if (_status != RideStatus.active) return;
     final rawSpeed = position.speed;
     _smoothedSpeedMs = _speedAlpha * rawSpeed + (1 - _speedAlpha) * _smoothedSpeedMs;
 
@@ -165,8 +160,10 @@ class RideTrackingService {
         if (_smoothedSpeedMs > _maxSpeedMs) _maxSpeedMs = _smoothedSpeedMs;
       }
 
-      // Track ascent (use raw altitude — drift affects this less than distance)
-      if (_lastPosition!.altitude > 0 && position.altitude > 0) {
+      // Track ascent — use altitude if available (can be negative, e.g. below sea level)
+      final lastAlt = _lastPosition!.altitude;
+      final currAlt = position.altitude;
+      if (lastAlt != null && currAlt != null) {
         final elevDiff = position.altitude - _lastPosition!.altitude;
         if (elevDiff > 0) _totalAscentM += elevDiff;
       }
@@ -184,7 +181,9 @@ class RideTrackingService {
     }
 
     _emitState();
-    _pathController.add(List.from(_recordedPath));
+    if (!_pathController.isClosed) {
+      _pathController.add(List.from(_recordedPath));
+    }
   }
 
   // ── Multi-factor stationary detection ──────────────
@@ -206,7 +205,6 @@ class RideTrackingService {
         positionDelta < _stationaryDeltaM;
 
     if (isStationary) {
-      _consecutiveMovingReadings = 0;
       _consecutiveStationaryReadings++;
 
       if (_consecutiveStationaryReadings >= _stationaryReadingsToPause) {
@@ -214,8 +212,6 @@ class RideTrackingService {
       }
     } else {
       _consecutiveStationaryReadings = 0;
-      _consecutiveMovingReadings++;
-      _lastMovementTime = DateTime.now();
     }
   }
 
@@ -225,7 +221,6 @@ class RideTrackingService {
     _pauseStart = DateTime.now();
     _positionSubscription?.cancel();
     _smoothedSpeedMs = 0;
-    HapticFeedback.heavyImpact();
     _emitInstruction('⏸ Auto-paused — you\'ve stopped moving');
     _speakInstruction('Auto paused. You have stopped moving.');
     _emitState();
@@ -247,10 +242,7 @@ class RideTrackingService {
         _pausedDuration += DateTime.now().difference(_pauseStart!);
       }
       _consecutiveStationaryReadings = 0;
-      _consecutiveMovingReadings = 0;
-      _lastMovementTime = DateTime.now();
       _smoothedSpeedMs = 0;  // reset filter on resume
-      HapticFeedback.mediumImpact();
       _emitInstruction('▶ Resumed');
       _speakInstruction('Resumed.');
       _positionSubscription = Geolocator.getPositionStream(
@@ -270,7 +262,9 @@ class RideTrackingService {
 
     final last = _routeCoordinates!.last;
     final dist = _haversineDistance(currentPos, last);
-    _remainingDistController.add(dist / 1000);
+    if (!_remainingDistController.isClosed) {
+      _remainingDistController.add(dist / 1000);
+    }
 
     for (var i = _currentStepIndex; i < _steps!.length; i++) {
       final stepCoord = _getStepCoordinate(i);

@@ -20,8 +20,10 @@ class AchievementsGrid extends StatelessWidget {
   /// The rides to evaluate achievements against.
   final List<RideRecording>? rides;
 
-  /// Optional service instance (defaults to a fresh instance).
+  /// Optional service instance (defaults to a cached instance).
   final AchievementService? service;
+
+  static final AchievementService _defaultService = AchievementService();
 
   /// Whether the grid is in a loading state.
   final bool loading;
@@ -47,7 +49,7 @@ class AchievementsGrid extends StatelessWidget {
     }
 
     // ── Resolve data ──
-    final effectiveService = service ?? AchievementService();
+    final effectiveService = service ?? _defaultService;
     List<Achievement> resolvedAchievements;
     Map<String, double> resolvedProgress;
 

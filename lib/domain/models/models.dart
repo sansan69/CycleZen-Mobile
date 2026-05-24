@@ -66,6 +66,26 @@ class CyclingRoute extends Equatable {
 
   @override
   List<Object?> get props => [id, distanceKm, estimatedTimeMin, ascentM, routeName];
+
+  CyclingRoute copyWith({
+    String? id,
+    double? distanceKm,
+    double? estimatedTimeMin,
+    List<Coordinate>? coordinates,
+    double? ascentM,
+    List<RouteStep>? steps,
+    String? routeName,
+  }) {
+    return CyclingRoute(
+      id: id ?? this.id,
+      distanceKm: distanceKm ?? this.distanceKm,
+      estimatedTimeMin: estimatedTimeMin ?? this.estimatedTimeMin,
+      coordinates: coordinates ?? this.coordinates,
+      ascentM: ascentM ?? this.ascentM,
+      steps: steps ?? this.steps,
+      routeName: routeName ?? this.routeName,
+    );
+  }
 }
 
 class RouteStep extends Equatable {
