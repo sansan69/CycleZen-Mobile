@@ -44,7 +44,12 @@ class _SlideTransitionPage extends CustomTransitionPage<void> {
 }
 
 class AppRouter {
+  final GlobalKey<NavigatorState>? navigatorKey;
+
+  AppRouter({this.navigatorKey});
+
   late final GoRouter config = GoRouter(
+    navigatorKey: navigatorKey,
     initialLocation: '/splash',
     routes: [
       // Internal splash → always routes to landing

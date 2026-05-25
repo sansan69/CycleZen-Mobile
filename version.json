@@ -1,0 +1,7 @@
+{
+  "version": "1.26",
+  "versionCode": 26,
+  "apkUrl": "https://github.com/sansan69/CycleZen-Mobile/releases/download/v1.26/CycleZen-v1.26.apk",
+  "changelog": "• In-app update system — get updates without reinstalling\n• Custom locate-me button on map with loading spinner\n• Location services prompt flow (dialog → settings → retry)\n• GPS timeout handling with user-friendly messages\n• Bug fixes: FormKey validation, route detail spinner, stream controller crashes\n• Code cleanup: removed dead files, fields, and unused packages",
+  "mandatory": false
+}

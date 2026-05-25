@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:cyclezen/data/repositories/ride_repository.dart';
 import 'package:cyclezen/data/services/achievement_service.dart';
 import 'package:cyclezen/data/services/training_service.dart';
@@ -125,29 +126,33 @@ class _DashboardPageState extends State<DashboardPage> {
                   // Stats cards
                   Row(
                     children: [
-                      Expanded(child: _StatCard(icon: Icons.straighten, label: 'Distance', value: '${totalDist.toStringAsFixed(1)} km')),
+                      Expanded(child: _StatCard(icon: Icons.straighten, label: 'Distance', value: '${totalDist.toStringAsFixed(1)} km')
+                          .animate().fadeIn(delay: 100.ms, duration: 400.ms).slideX(begin: -0.15)),
                       const SizedBox(width: 12),
-                      Expanded(child: _StatCard(icon: Icons.timer, label: 'Time', value: '${totalTimeH.toStringAsFixed(1)} h')),
+                      Expanded(child: _StatCard(icon: Icons.timer, label: 'Time', value: '${totalTimeH.toStringAsFixed(1)} h')
+                          .animate().fadeIn(delay: 200.ms, duration: 400.ms).slideX(begin: 0.15)),
                     ],
                   ),
                   const SizedBox(height: 12),
                   Row(
                     children: [
-                      Expanded(child: _StatCard(icon: Icons.directions_bike, label: 'Rides', value: '${_rides?.length ?? 0}')),
+                      Expanded(child: _StatCard(icon: Icons.directions_bike, label: 'Rides', value: '${_rides?.length ?? 0}')
+                          .animate().fadeIn(delay: 300.ms, duration: 400.ms).slideX(begin: -0.15)),
                       const SizedBox(width: 12),
                       Expanded(child: _StatCard(icon: Icons.speed, label: 'Avg Speed',
                         value: totalDist > 0 && totalTimeH > 0 ? '${(totalDist / totalTimeH).toStringAsFixed(1)} km/h' : '--',
-                      )),
+                      ).animate().fadeIn(delay: 400.ms, duration: 400.ms).slideX(begin: 0.15)),
                     ],
                   ),
                   const SizedBox(height: 12),
                   Row(
                     children: [
-                      Expanded(child: _StatCard(icon: Icons.terrain, label: 'Ascent', value: '${totalAscent.round()} m')),
+                      Expanded(child: _StatCard(icon: Icons.terrain, label: 'Ascent', value: '${totalAscent.round()} m')
+                          .animate().fadeIn(delay: 500.ms, duration: 400.ms).slideX(begin: -0.15)),
                       const SizedBox(width: 12),
                       Expanded(child: _StatCard(icon: Icons.local_fire_department, label: 'Calories',
                         value: totalDist > 0 ? '${(totalDist * 70 * 0.5 + totalAscent * 0.15 * 0.7).round()} kcal' : '--',
-                      )),
+                      ).animate().fadeIn(delay: 600.ms, duration: 400.ms).slideX(begin: 0.15)),
                     ],
                   ),
 
@@ -171,7 +176,8 @@ class _DashboardPageState extends State<DashboardPage> {
                   // Training Metrics
                   if (_metrics != null && _metrics!.totalRides > 0) ...[
                     const SizedBox(height: 24),
-                    Text('Training Load', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+                    Text('Training Load', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold))
+                        .animate().fadeIn(delay: 700.ms, duration: 400.ms),
                     const SizedBox(height: 12),
                     Card(
                       child: Padding(
@@ -199,7 +205,7 @@ class _DashboardPageState extends State<DashboardPage> {
                           ],
                         ),
                       ),
-                    ),
+                    ).animate().fadeIn(delay: 800.ms, duration: 500.ms).slideY(begin: 0.15),
                   ],
 
                   // Achievements
@@ -208,51 +214,18 @@ class _DashboardPageState extends State<DashboardPage> {
                     achievements: _achievements,
                     progress: _achievementProgress,
                     rides: _rides,
+                    loading: _loading,
                   ),
-
-                  // Recent Rides
-                  const SizedBox(height: 24),
-                  Text('Recent Rides', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 8),
-
-                  if (_rides == null || _rides!.isEmpty)
-                    const Card(
-                      child: Padding(
-                        padding: EdgeInsets.all(32),
-                        child: Center(child: Text('No rides yet.\nStart riding to see your stats!', textAlign: TextAlign.center)),
-                      ),
-                    ),
-
-                  ...(_rides?.map((ride) => Card(
-                        margin: const EdgeInsets.only(bottom: 8),
-                        child: ListTile(
-                          leading: const Icon(Icons.directions_bike, color: Colors.green),
-                          title: Text(ride.route.routeName ?? 'Ride'),
-                          subtitle: Text(
-                            '${ride.actualDistanceKm.toStringAsFixed(1)} km · '
-                            '${(ride.actualDurationSec / 60).round()} min · '
-                            '${ride.avgSpeedKmh.toStringAsFixed(1)} km/h',
-                          ),
-                          trailing: IconButton(
-                            icon: const Icon(Icons.share, size: 20),
-                            tooltip: 'Share ride',
-                            onPressed: () => RideShareService.shareRide(ride),
-                          ),
-                          onTap: () => RideShareService.shareRide(ride),
-                        ),
-                      )) ?? []),
                 ],
               ),
             ),
     );
   }
-
 }
 
 class _StatCard extends StatelessWidget {
   final IconData icon;
-  final String label;
-  final String value;
+  final String label, value;
   const _StatCard({required this.icon, required this.label, required this.value});
 
   @override

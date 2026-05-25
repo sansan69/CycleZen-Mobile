@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import '../../../../domain/models/models.dart';
 import '../../../../domain/models/achievement.dart';
 import '../../../../data/services/achievement_service.dart';
@@ -145,7 +146,7 @@ class AchievementsGrid extends StatelessWidget {
                 return AchievementBadge(
                   achievement: achievement,
                   progress: fraction,
-                );
+                ).animate().fadeIn(delay: (100 * index).ms, duration: 400.ms).scale(begin: const Offset(0.85, 0.85));
               },
             );
           },

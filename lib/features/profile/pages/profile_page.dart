@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cyclezen/core/theme/app_theme.dart';
@@ -74,9 +75,10 @@ class _ProfilePageState extends State<ProfilePage> {
                     radius: 50,
                     backgroundColor: AppTheme.greenAccent,
                     child: Icon(Icons.person, size: 50, color: Colors.white),
-                  ),
+                  ).animate().scale(delay: 150.ms, duration: 500.ms, curve: Curves.elasticOut),
                   const SizedBox(height: 16),
-                  Text(state.user.email ?? '', style: Theme.of(context).textTheme.bodyLarge),
+                  Text(state.user.email ?? '', style: Theme.of(context).textTheme.bodyLarge)
+                      .animate().fadeIn(delay: 400.ms, duration: 400.ms),
                   const SizedBox(height: 32),
 
                   // Theme toggle

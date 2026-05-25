@@ -9,6 +9,11 @@ import 'package:cyclezen/core/di/injection.dart';
 import 'package:cyclezen/core/theme/app_theme.dart';
 import 'package:cyclezen/core/router/app_router.dart';
 import 'package:cyclezen/features/auth/bloc/auth_bloc.dart';
+import 'package:cyclezen/data/services/update_service.dart';
+import 'package:cyclezen/features/update/widgets/update_dialog.dart';
+
+/// Root navigator key — allows showing dialogs from anywhere.
+final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,10 +36,25 @@ Future<void> main() async {
   // Show splash immediately — don't wait for Firebase init.
   runApp(const _CycleZenSplash());
 
-  _initApp().then((_) {
+  _initApp(_rootNavigatorKey).then((_) {
     runApp(CycleZenApp(themeNotifier: getIt<ThemeModeNotifier>()));
+    _checkForUpdate();
   }).catchError((error, stack) {
     runApp(_ErrorApp(error: error));
+  });
+}
+
+/// Check for app updates silently in the background.
+/// Shows an update dialog only when a newer version is available.
+void _checkForUpdate() {
+  Future.delayed(const Duration(seconds: 3), () async {
+    final update = await UpdateService.instance.checkForUpdate();
+    if (update == null) return;
+
+    final context = _rootNavigatorKey.currentContext;
+    if (context != null && context.mounted) {
+      UpdateDialog.show(context, update);
+    }
   });
 }
 
@@ -74,7 +94,7 @@ class _ErrorApp extends StatelessWidget {
   }
 }
 
-Future<void> _initApp() async {
+Future<void> _initApp(GlobalKey<NavigatorState> navigatorKey) async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -89,7 +109,7 @@ Future<void> _initApp() async {
   final themeNotifier = ThemeModeNotifier.withMode(initialMode);
   getIt.registerSingleton<ThemeModeNotifier>(themeNotifier);
 
-  await configureDependencies();
+  await configureDependencies(navigatorKey: navigatorKey);
 }
 
 /// Branded splash screen shown immediately while Firebase initializes.

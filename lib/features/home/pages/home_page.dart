@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -15,6 +16,7 @@ import 'package:cyclezen/features/home/widgets/route_card.dart';
 import 'package:cyclezen/features/home/widgets/ai_route_panel.dart';
 import 'package:cyclezen/features/home/widgets/manual_route_panel.dart';
 import 'package:cyclezen/features/home/widgets/weather_widget.dart';
+import 'package:cyclezen/features/home/widgets/branded_app_bar.dart';
 import 'package:cyclezen/features/auth/bloc/auth_bloc.dart';
 import 'package:cyclezen/shared/utils/map_utils.dart';
 import 'package:cyclezen/core/theme/app_theme.dart';
@@ -38,6 +40,8 @@ class _HomePageState extends State<HomePage> {
   GoogleMapController? _mapController;
   bool _hasLocationPermission = false;
   bool _locatingMe = false;
+  bool _showLocateHint = true;
+  bool _showCardHint = true;
   Set<Marker> _markers = {};
   Set<Polyline> _polylines = {};
   final List<Coordinate> _manualWaypoints = [];
@@ -505,7 +509,7 @@ class _HomePageState extends State<HomePage> {
         }
       },
       child: Scaffold(
-        appBar: _BrandedAppBar(
+        appBar: BrandedAppBar(
           actions: [
             IconButton(icon: const Icon(Icons.bookmark, color: Colors.white), onPressed: () => context.pushNamed('saved-routes'), tooltip: 'Saved Routes'),
             IconButton(icon: const Icon(Icons.dashboard, color: Colors.white), onPressed: () => context.pushNamed('dashboard'), tooltip: 'Dashboard'),
@@ -535,23 +539,81 @@ class _HomePageState extends State<HomePage> {
                     mapToolbarEnabled: false,
                   ),
                   ),
-                  // ── Custom Locate-Me FAB ──
+                  // ── Custom Locate-Me FAB with hint ──
                   Positioned(
                     right: 12,
                     bottom: 12,
-                    child: FloatingActionButton.small(
-                      heroTag: 'locateMe',
-                      onPressed: _locatingMe ? null : _locateMe,
-                      backgroundColor: Theme.of(context).colorScheme.surface,
-                      child: _locatingMe
-                          ? const SizedBox(
-                              width: 20, height: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : Icon(Icons.my_location,
-                              color: _hasLocationPermission
-                                  ? Theme.of(context).colorScheme.primary
-                                  : Colors.grey),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        // "Find me" hint label
+                        if (_showLocateHint && !_hasLocationPermission)
+                          Padding(
+                            padding: const EdgeInsets.only(right: 4, bottom: 6),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                              decoration: BoxDecoration(
+                                color: Colors.black87,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: const Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(Icons.touch_app, size: 14, color: Colors.white70),
+                                  SizedBox(width: 5),
+                                  Text(
+                                    'Find me',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        // FAB with pulsing glow
+                        Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            if (_showLocateHint)
+                              TweenAnimationBuilder<double>(
+                                tween: Tween(begin: 0.6, end: 1.0),
+                                duration: const Duration(milliseconds: 1200),
+                                builder: (context, value, _) {
+                                  return Container(
+                                    width: 44 * value,
+                                    height: 44 * value,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.15 * (1 - (value - 0.6) / 0.4)),
+                                    ),
+                                  );
+                                },
+                                onEnd: () => setState(() {}), // trigger rebuild for loop
+                              ),
+                            FloatingActionButton.small(
+                              heroTag: 'locateMe',
+                              onPressed: () {
+                                setState(() => _showLocateHint = false);
+                                if (!_locatingMe) _locateMe();
+                              },
+                              backgroundColor: Theme.of(context).colorScheme.surface,
+                              child: _locatingMe
+                                  ? const SizedBox(
+                                      width: 20, height: 20,
+                                      child: CircularProgressIndicator(strokeWidth: 2),
+                                    )
+                                  : Icon(Icons.my_location,
+                                      color: _hasLocationPermission
+                                          ? Theme.of(context).colorScheme.primary
+                                          : Colors.grey),
+                            ).animate().scale(delay: 400.ms, duration: 400.ms, curve: Curves.elasticOut),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -564,7 +626,7 @@ class _HomePageState extends State<HomePage> {
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    WeatherWidget(weather: _weather),
+                    WeatherWidget(weather: _weather).animate().fadeIn(delay: 200.ms, duration: 400.ms).slideY(begin: 0.1),
                     Padding(
                       padding: const EdgeInsets.all(16),
                       child: RouteModeToggle(mode: _mode, onChanged: _onModeChanged),
@@ -594,27 +656,60 @@ class _HomePageState extends State<HomePage> {
                       ...(_routes!.asMap().entries.map((e) {
                         final index = e.key;
                         final route = e.value;
-                        return TweenAnimationBuilder<double>(
-                          duration: Duration(milliseconds: 350 + (index * 80)),
-                          tween: Tween(begin: 0.0, end: 1.0),
-                          curve: Curves.easeOutCubic,
-                          builder: (context, value, child) {
-                            return Opacity(
-                              opacity: value,
-                              child: Transform.translate(
-                                offset: Offset(0, 25 * (1 - value)),
-                                child: child,
+                        final isFirstCard = index == 0;
+                        return Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            // "Tap to view" hint on first card
+                            if (isFirstCard && _showCardHint)
+                              Padding(
+                                padding: const EdgeInsets.only(left: 16, bottom: 4),
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.touch_app, size: 13, color: AppTheme.greenAccent),
+                                    const SizedBox(width: 5),
+                                    const Text(
+                                      'Tap card to view route details',
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w600,
+                                        color: AppTheme.greenAccent,
+                                      ),
+                                    ),
+                                    const Spacer(),
+                                    GestureDetector(
+                                      onTap: () => setState(() => _showCardHint = false),
+                                      child: const Icon(Icons.close, size: 14, color: Colors.grey),
+                                    ),
+                                  ],
+                                ),
                               ),
-                            );
-                          },
-                          child: RouteCard(
-                            route: route,
-                            onTap: () => _onRouteTap(index),
-                            isSelected: _selectedRouteIndex == index,
-                            onSave: () => _saveRoute(route),
-                            onRide: () => _startRide(route),
-                            onExportGpx: () => _exportGpx(route),
-                          ),
+                            TweenAnimationBuilder<double>(
+                              duration: Duration(milliseconds: 350 + (index * 80)),
+                              tween: Tween(begin: 0.0, end: 1.0),
+                              curve: Curves.easeOutCubic,
+                              builder: (context, value, child) {
+                                return Opacity(
+                                  opacity: value,
+                                  child: Transform.translate(
+                                    offset: Offset(0, 25 * (1 - value)),
+                                    child: child,
+                                  ),
+                                );
+                              },
+                              child: RouteCard(
+                                route: route,
+                                onTap: () {
+                                  if (_showCardHint) setState(() => _showCardHint = false);
+                                  _onRouteTap(index);
+                                },
+                                isSelected: _selectedRouteIndex == index,
+                                onSave: () => _saveRoute(route),
+                                onRide: () => _startRide(route),
+                                onExportGpx: () => _exportGpx(route),
+                              ),
+                            ),
+                          ],
                         );
                       })),
                     if (!isAuthenticated)
@@ -660,84 +755,4 @@ class _HomePageState extends State<HomePage> {
       _fetchWeather();
     }
   }
-}
-
-// ── Branded AppBar ─────────────────────────────────────
-
-class _BrandedAppBar extends StatelessWidget implements PreferredSizeWidget {
-  final List<Widget> actions;
-  const _BrandedAppBar({required this.actions});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [AppTheme.primaryDark, AppTheme.surfaceDark],
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.35),
-            blurRadius: 8,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: SafeArea(
-        bottom: false,
-        child: Padding(
-          padding: const EdgeInsets.only(left: 12, right: 4, top: 4, bottom: 4),
-          child: Row(
-            children: [
-              ClipOval(
-                child: Image.asset(
-                  AppAssets.logoMark,
-                  width: 30,
-                  height: 30,
-                  fit: BoxFit.cover,
-
-                ),
-              ),
-              const SizedBox(width: 8),
-              Flexible(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'CycleZen',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w800,
-                        color: Colors.white,
-                        height: 1.2,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const Text(
-                      'DISCOVER · PLAN · RIDE · SHARE',
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w600,
-                        color: AppTheme.goldRing,
-                        letterSpacing: 0.8,
-                        height: 1.3,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
-              ),
-              ...actions,
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  @override
-  Size get preferredSize => const Size.fromHeight(54);
 }

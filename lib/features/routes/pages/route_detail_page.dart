@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:cyclezen/domain/models/models.dart';
@@ -123,9 +124,11 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Stats', style: Theme.of(context).textTheme.titleLarge),
+                        Text('Stats', style: Theme.of(context).textTheme.titleLarge)
+                            .animate().fadeIn(delay: 100.ms, duration: 400.ms),
                         const SizedBox(height: 12),
-                        _DetailRow(label: 'Distance', value: '${_route!.distanceKm.toStringAsFixed(1)} km'),
+                        _DetailRow(label: 'Distance', value: '${_route!.distanceKm.toStringAsFixed(1)} km')
+                            .animate().fadeIn(delay: 200.ms, duration: 350.ms).slideX(begin: -0.15),
                         _DetailRow(label: 'Est. Time', value: '${_route!.estimatedTimeMin.round()} min'),
                         if (_route!.ascentM != null)
                           _DetailRow(label: 'Ascent', value: '${_route!.ascentM!.round()} m'),

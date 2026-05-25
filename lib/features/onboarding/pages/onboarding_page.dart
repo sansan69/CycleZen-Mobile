@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cyclezen/core/theme/app_theme.dart';
@@ -74,7 +75,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   child: Text('Skip',
                       style: TextStyle(
                           color: theme.colorScheme.onSurface.withValues(alpha: 0.5))),
-                ),
+                ).animate().fadeIn(delay: 800.ms, duration: 400.ms),
               ),
             ),
 
@@ -136,7 +137,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                         ),
                       );
                     }),
-                  ),
+                  ).animate().fadeIn(duration: 300.ms),
                   const SizedBox(height: 24),
 
                   // Action buttons
@@ -149,7 +150,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                           padding: const EdgeInsets.symmetric(vertical: 14),
                         ),
                         child: const Text('Next'),
-                      ),
+                      ).animate().fadeIn(duration: 400.ms).slideY(begin: 0.2),
                     ),
                   ] else ...[
                     // Last page: Sign In + Get Started
@@ -163,7 +164,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                           foregroundColor: Colors.white,
                         ),
                         child: const Text('Sign In / Sign Up'),
-                      ),
+                      ).animate().fadeIn(delay: 150.ms, duration: 500.ms).slideY(begin: 0.2),
                     ),
                     const SizedBox(height: 12),
                     SizedBox(
@@ -174,7 +175,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                           padding: const EdgeInsets.symmetric(vertical: 14),
                         ),
                         child: const Text('Explore the App'),
-                      ),
+                      ).animate().fadeIn(delay: 300.ms, duration: 500.ms).slideY(begin: 0.2),
                     ),
                   ],
                 ],
@@ -208,18 +209,20 @@ class _OnboardingPageState extends State<OnboardingPage> {
               shape: BoxShape.circle,
             ),
             child: Icon(icon, size: 56, color: color),
-          ),
+          ).animate().scale(delay: 200.ms, duration: 500.ms, curve: Curves.elasticOut),
           const SizedBox(height: 48),
           Text(title,
               style: theme.textTheme.headlineMedium?.copyWith(
                   fontWeight: FontWeight.bold),
-              textAlign: TextAlign.center),
+              textAlign: TextAlign.center)
+              .animate().fadeIn(delay: 350.ms, duration: 400.ms).slideY(begin: 0.15),
           const SizedBox(height: 16),
           Text(subtitle,
               style: theme.textTheme.bodyLarge?.copyWith(
                   color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                   height: 1.5),
-              textAlign: TextAlign.center),
+              textAlign: TextAlign.center)
+              .animate().fadeIn(delay: 500.ms, duration: 400.ms).slideY(begin: 0.15),
           const SizedBox(height: 48),
           // Brand tagline on last slide
           if (isLast)

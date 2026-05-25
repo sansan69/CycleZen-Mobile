@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cyclezen/core/theme/app_theme.dart';
@@ -91,15 +92,17 @@ class _AuthPageState extends State<AuthPage> with SingleTickerProviderStateMixin
                     height: 64,
                     fit: BoxFit.cover,
                   ),
-                ),
+                ).animate().scale(delay: 100.ms, duration: 500.ms, curve: Curves.elasticOut),
                 const SizedBox(height: 8),
                 Text('Welcome to CycleZen',
                     style: theme.textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.bold)),
+                        fontWeight: FontWeight.bold))
+                    .animate().fadeIn(delay: 300.ms, duration: 400.ms).slideY(begin: 0.15),
                 const SizedBox(height: 4),
                 Text('Discover. Plan. Ride. Share.',
                     style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.onSurface.withValues(alpha: 0.6))),
+                        color: theme.colorScheme.onSurface.withValues(alpha: 0.6)))
+                    .animate().fadeIn(delay: 450.ms, duration: 400.ms),
                 const SizedBox(height: 24),
 
                 // ── Google Sign-In ──
@@ -120,7 +123,7 @@ class _AuthPageState extends State<AuthPage> with SingleTickerProviderStateMixin
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       side: BorderSide(color: theme.colorScheme.outline),
                     ),
-                  ),
+                  ).animate().fadeIn(delay: 550.ms, duration: 400.ms).slideY(begin: 0.15),
                 ),
                 const SizedBox(height: 16),
 
@@ -133,7 +136,7 @@ class _AuthPageState extends State<AuthPage> with SingleTickerProviderStateMixin
                         color: theme.colorScheme.onSurface.withValues(alpha: 0.5))),
                   ),
                   const Expanded(child: Divider()),
-                ]),
+                ]).animate().fadeIn(delay: 700.ms, duration: 300.ms),
                 const SizedBox(height: 16),
 
                 // ── Sign In / Sign Up Tabs ──
@@ -145,7 +148,7 @@ class _AuthPageState extends State<AuthPage> with SingleTickerProviderStateMixin
                   ],
                   labelColor: theme.colorScheme.primary,
                   unselectedLabelColor: theme.colorScheme.onSurface.withValues(alpha: 0.5),
-                ),
+                ).animate().fadeIn(delay: 800.ms, duration: 300.ms),
                 const SizedBox(height: 16),
 
                 SizedBox(
@@ -198,7 +201,7 @@ class _AuthPageState extends State<AuthPage> with SingleTickerProviderStateMixin
             ),
             keyboardType: TextInputType.emailAddress,
             enabled: !isLoading,
-          ),
+          ).animate().fadeIn(delay: 950.ms, duration: 350.ms).slideX(begin: -0.1),
           const SizedBox(height: 12),
           TextField(
             controller: _passwordCtrl,
@@ -212,7 +215,7 @@ class _AuthPageState extends State<AuthPage> with SingleTickerProviderStateMixin
             ),
             obscureText: _obscurePassword,
             enabled: !isLoading,
-          ),
+          ).animate().fadeIn(delay: 1050.ms, duration: 350.ms).slideX(begin: -0.1),
           const SizedBox(height: 4),
           Align(
             alignment: Alignment.centerRight,
@@ -253,7 +256,7 @@ class _AuthPageState extends State<AuthPage> with SingleTickerProviderStateMixin
               prefixIcon: Icon(Icons.person_outlined),
             ),
             enabled: !isLoading,
-          ),
+          ).animate().fadeIn(delay: 950.ms, duration: 350.ms).slideX(begin: -0.1),
           const SizedBox(height: 12),
           TextField(
             controller: _emailCtrl,
@@ -263,7 +266,7 @@ class _AuthPageState extends State<AuthPage> with SingleTickerProviderStateMixin
             ),
             keyboardType: TextInputType.emailAddress,
             enabled: !isLoading,
-          ),
+          ).animate().fadeIn(delay: 1050.ms, duration: 350.ms).slideX(begin: -0.1),
           const SizedBox(height: 12),
           TextField(
             controller: _passwordCtrl,
@@ -277,7 +280,7 @@ class _AuthPageState extends State<AuthPage> with SingleTickerProviderStateMixin
             ),
             obscureText: _obscurePassword,
             enabled: !isLoading,
-          ),
+          ).animate().fadeIn(delay: 1150.ms, duration: 350.ms).slideX(begin: -0.1),
           const SizedBox(height: 20),
           SizedBox(
             width: double.infinity,

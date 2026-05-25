@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:cyclezen/domain/models/models.dart';
 
 /// Compact ride summary replacing the elevation profile chart.
@@ -82,7 +83,7 @@ class RideSummary extends StatelessWidget {
           ),
         ],
       ),
-    );
+    ).animate().fadeIn(delay: 200.ms, duration: 500.ms).slideY(begin: 0.15);
   }
 }
 

@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:get_it/get_it.dart';
 import 'package:cyclezen/core/router/app_router.dart';
 import 'package:cyclezen/features/auth/bloc/auth_bloc.dart';
@@ -11,9 +12,9 @@ import 'package:cyclezen/data/services/weather_service.dart';
 
 final getIt = GetIt.instance;
 
-Future<void> configureDependencies() async {
+Future<void> configureDependencies({GlobalKey<NavigatorState>? navigatorKey}) async {
   // Router
-  getIt.registerLazySingleton<AppRouter>(() => AppRouter());
+  getIt.registerLazySingleton<AppRouter>(() => AppRouter(navigatorKey: navigatorKey));
 
   // Repositories
   getIt.registerLazySingleton<AuthRepository>(() => AuthRepository());
